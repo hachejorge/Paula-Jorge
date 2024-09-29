@@ -88,9 +88,15 @@ func main() {
 
 	// Barrier synchronization
 	var mu sync.Mutex
+
 	quitChannel := make(chan bool)
 	receivedMap := make(map[string]bool)
 	barrierChan := make(chan bool)
+
+	// NUEVO
+	var mu_sent sync.Mutex
+	numSent := 0
+	sentChan := make(chan bool)
 
 	// Start accepting connections
 	go func() {
@@ -98,7 +104,7 @@ func main() {
 			select {
 			case <-quitChannel:
 				fmt.Println("Stopping the listener...")
-				break //CAMBIO: cambiar por un return???, para asegurarse de que sale del bucle completamente
+				return
 			default:
 				conn, err := listener.Accept()
 				if err != nil {
@@ -130,14 +136,22 @@ func main() {
 					conn.Close()
 					break
 				}
+				//NUEVO
+				mu_sent.Lock()
+				numSent++
+				if numSent == n-1 {
+					sentChan <- true
+				}
+				mu_sent.Unlock()
+
 			}(ep)
 		}
 	}
 	fmt.Println("Waiting for all the processes to reach the barrier")
 
 	//Wait
-	<-barrierChan
-	quitChannel <- true
-
+	<-sentChan 		//esperar a que se envien todos los procesos
+	<-barrierChan		//
 	listener.Close()
+	quitChannel <- true	//
 }
