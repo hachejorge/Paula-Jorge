@@ -1,11 +1,11 @@
 /*
 * AUTOR: Rafael Tolosana Calasanz y Unai Arronategui
 * ASIGNATURA: 30221 Sistemas Distribuidos del Grado en Ingeniería Informática
-*			Escuela de Ingeniería y Arquitectura - Universidad de Zaragoza
+*                       Escuela de Ingeniería y Arquitectura - Universidad de Zaragoza
 * FECHA: septiembre de 2022
 * FICHERO: server-draft.go
 * DESCRIPCIÓN: contiene la funcionalidad esencial para realizar los servidores
-*				correspondientes a la práctica 1
+*                               correspondientes a la práctica 1
  */
 package main
 
@@ -17,6 +17,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/user"
 	"practica1/com"
 	"strings"
 )
@@ -48,35 +49,39 @@ func processRequest(conn net.Conn, worker string) {
 	decoder := gob.NewDecoder(conn)
 	err := decoder.Decode(&request)
 	com.CheckError(err)
+	fmt.Println("Request recibida del cliente...")
 	// Crea conexión con el worker y envia petición
 	conn_w, err := net.Dial("tcp", worker)
 	com.CheckError(err)
 	encoder := gob.NewEncoder(conn_w)
 	err = encoder.Encode(request)
 	com.CheckError(err)
+	fmt.Println("Request enviada al worker...")
 	// Recibe respuesta del worker
 	var reply com.Reply
 	decoder = gob.NewDecoder(conn_w)
 	err = decoder.Decode(&reply)
 	com.CheckError(err)
 	conn_w.Close()
-	// Envia respuesta al cliente y cierra la conexión
+	fmt.Println("Reply recibida del worker...")
+	// Envia respuesta al cliente y cierrala conexión
 	encoder = gob.NewEncoder(conn)
 	encoder.Encode(&reply)
 	conn.Close()
+	fmt.Println("Reply enviada al cliente...")
 }
-
 func poolWorkers(workersChan chan net.Conn, worker string) {
 	for {
 		// Recibe una petición y la procesa
 		conn := <-workersChan
+		fmt.Println("Procesando request...")
 		processRequest(conn, worker)
 	}
 }
 
 func main() {
 	args := os.Args
-	if len(args) != 2 {
+	if len(args) != 3 {
 		log.Println("Error: endpoint missing: go run server.go ip:port fileWorkers")
 		os.Exit(1)
 	}
@@ -94,16 +99,20 @@ func main() {
 
 	workersChan := make(chan net.Conn)
 
+	fmt.Println("Lanzando los workers...")
 	// Se lanzan los workers
 	for _, ep := range workers {
 		split := strings.Split(ep, ":")
 		ip := split[0]
 
 		// Construir el comando SSH para ejecutar el worker en la máquina remota
-		cmd := exec.Command("ssh", ip, "go", "run", "/misc/alumnos/sd/sd2425/a872838/practica1/cmd/worker/worker.go", ep)
+		usuario, err := user.Current()
+		settingWorkers := fmt.Sprintf("ssh %s@%s 'cd /misc/alumnos/sd/sd2425/a872838/practica1/cmd/worker && go run worker.go %s'", usuario.Username, ip, ep)
+		fmt.Println(settingWorkers)
+		cmd := exec.Command("bash", "-c", settingWorkers)
 
 		// Ejecutar el comando SSH
-		_, err := cmd.CombinedOutput()
+		err = cmd.Start()
 		if err != nil {
 			log.Printf("Error running SSH command on %s: %v\n", ep, err)
 			continue
@@ -121,6 +130,7 @@ func main() {
 		// Aceptas peticiones
 		conn, err := listener.Accept()
 		com.CheckError(err)
+		fmt.Println("Conexión aceptada, delegando al gestor de workers...")
 		workersChan <- conn
 	}
 }
