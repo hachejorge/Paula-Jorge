@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Notepad</string>
+    <string name="hint_title">Type title ...</string>
+    <string name="hint_body">Type body ...</string>
+    <string name="button_save">Save</string>
+    <string name="empty_not_saved">Note not saved because title is empty.</string>
+    <string name="add_note">Add note</string>
+    <string name="menu_delete">Delete Note</string>
+    <string name="menu_edit">Edit Note</string>
+    <string name="title">Title</string>
+    <string name="body">Body</string>
+</resources>
