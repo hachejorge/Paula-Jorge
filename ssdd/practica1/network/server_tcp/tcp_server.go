@@ -25,8 +25,8 @@ func main() {
 	defer listen.Close()
 
 	fmt.Println("TCP server is running and waiting for connections...")
-	for {
-		conn, err := listen.Accept()
+	for {	// While true
+		conn, err := listen.Accept() // Receive
 		if err != nil {
 			fmt.Println("Error accepting connection:", err)
 			continue
