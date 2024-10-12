@@ -6,13 +6,11 @@
 * FICHERO: ricart-agrawala.go
 * DESCRIPCIÓN: Implementación del algoritmo de Ricart-Agrawala Generalizado en Go
  */
-package ra
+package raRelojesLogicos
 
 import (
 	"practica2/ms"
 	"sync"
-
-	"github.com/DistributedClocks/GoVector/govec"
 )
 
 const (
@@ -20,36 +18,30 @@ const (
 )
 
 type Request struct {
-	Clock govec.VectorClock
+	Clock int
 	Pid   int
 }
 
 type Reply struct{}
 
 type RASharedDB struct {
-	// OurSeqNum int
-	// HigSeqNum int
+	me        int
+	OurSeqNum int
+	HigSeqNum int
 	OutRepCnt int
 	ReqCS     bool
 	RepDefd   []bool
-	ms        *MessageSystem
+	ms        *ms.MessageSystem
 	done      chan bool
 	chrep     chan bool  //channel replies
 	Mutex     sync.Mutex // mutex para proteger concurrencia sobre las variables
 	// TODO: completar
-	logger *govec.GoLog
-	vClock govec.VectorClock
 }
 
 func New(me int, usersFile string) *RASharedDB {
-	messageTypes := []Message{Request{}, Reply{}}
+	messageTypes := []ms.Message{Request{}, Reply{}}
 	msgs := ms.New(me, usersFile, messageTypes)
-	logger := govec.InitGoVector(msgs.me, "LogFile", govec.GetDefaultConfig())
-
-	vClock := govec.NewVectorClock()
-
-	ra := RASharedDB{0, false, []bool{}, &msgs, make(chan bool), make(chan bool), sync.Mutex{}, logger, vClock}
-	// TODO completar
+	ra := RASharedDB{me, 0, 0, 0, false, []bool{}, &msgs, make(chan bool), make(chan bool), sync.Mutex{}}
 
 	go func() {
 		for {
@@ -60,26 +52,20 @@ func New(me int, usersFile string) *RASharedDB {
 				switch msg := (ra.ms.Receive()).(type) {
 				case Request:
 					ra.Mutex.Lock()
-
-					// deferIt := ra.ReqCS && (msg.Clock > ra.OurSeqNum || (msg.Clock == ra.OurSeqNum && msg.Pid > ra.ms.me))
-					deferIt := ra.ReqCS && (ra.vClock.Compare(msg.Clock, Descendant) == 1 || (ra.vClock.Compare(msg.Clock, Equal) == 1 && msg.Pid > ra.ms.me))
-
-					ra.vClock.Merge(msg.Clock)
-
+					if ra.HigSeqNum < msg.Clock {
+						ra.HigSeqNum = msg.Clock
+					}
+					deferIt := ra.ReqCS && (msg.Clock > ra.OurSeqNum || (msg.Clock == ra.OurSeqNum && msg.Pid > ra.me))
 					ra.Mutex.Unlock()
 
 					if deferIt {
-						RepDefd[msg.Pid-1]
+						ra.RepDefd[msg.Pid-1] = true
 					} else {
-						ra.vClock.Tick(ra.ms.me)
 						ra.ms.Send(msg.Pid, Reply{})
 					}
 
 				case Reply:
-
-					ra.vClock.Tick(ra.ms.me)
-
-					if ra.ReqCs {
+					if ra.ReqCS {
 						ra.OutRepCnt = ra.OutRepCnt - 1
 						if ra.OutRepCnt == 0 {
 							ra.chrep <- true
@@ -101,14 +87,14 @@ func New(me int, usersFile string) *RASharedDB {
 func (ra *RASharedDB) PreProtocol() {
 	ra.Mutex.Lock()
 	ra.ReqCS = true
-	ra.OurSeqNum = HigSeqNum + 1
+	ra.OurSeqNum = ra.HigSeqNum + 1
 	ra.Mutex.Unlock()
 
-	ra.OutRepCnt = ra.ms.peers.len() - 1
+	ra.OutRepCnt = N - 1
 
-	for i := 1; i <= ra.ms.peers.len(); i++ {
-		if i != ra.ms.me {
-			ra.ms.Send(i, Request{ra.OurSeqNum, ra.ms.me})
+	for i := 1; i <= N; i++ {
+		if i != ra.me {
+			ra.ms.Send(i, Request{ra.OurSeqNum, ra.me})
 		}
 	}
 	<-ra.chrep
@@ -121,7 +107,7 @@ func (ra *RASharedDB) PreProtocol() {
 func (ra *RASharedDB) PostProtocol() {
 	ra.ReqCS = false
 	for i, defered := range ra.RepDefd {
-		if defered == true {
+		if defered {
 			ra.RepDefd[i-1] = false
 			ra.ms.Send(i, Reply{})
 		}
