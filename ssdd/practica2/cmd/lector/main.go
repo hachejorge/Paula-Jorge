@@ -6,7 +6,7 @@ import (
 	"os"
 	"practica2/ms"
 	mm "practica2/msgManager"
-	"practica2/raRelojesLogicos"
+	"practica2/ra"
 	"strconv"
 )
 
@@ -31,26 +31,30 @@ func main() {
 	}
 
 	me, _ := strconv.Atoi(os.Args[1])
-	msgTypes := []ms.Message{raRelojesLogicos.Request{}, raRelojesLogicos.Reply{}, mm.Upgrade{}, mm.Barrier{}}
+	msgTypes := []ms.Message{ra.Request{}, ra.Reply{}, mm.Upgrade{}, mm.Barrier{}}
 	msgs := ms.New(me, "../../ms/users.txt", msgTypes)
+	fmt.Println("Se ha creado el msgs")
 
-	requests := make(chan raRelojesLogicos.Request) //
-	replies := make(chan raRelojesLogicos.Reply)    //
 	okBarrier := make(chan bool)
 
-	go mm.ManageMsg(&msgs, file, requests, replies, okBarrier)
+	go mm.ManageMsg(&msgs, file, okBarrier)
 
 	// Crea RA
 
-	raData := raRelojesLogicos.New(me, "../../ms/usersRa.txt", "Reader")
+	raData := ra.New(me, "../../ms/usersRA.txt", "Reader")
 
 	// Se comunica con la barrera
-	msgs.Send(raRelojesLogicos.N+1, mm.Barrier{})
+	msgs.Send(ra.N+1, mm.Barrier{})
 	<-okBarrier
+	fmt.Println("Se ha superado la barrera")
 
 	for {
+		fmt.Println("Quiero entrar a SC")
 		raData.PreProtocol()
+		fmt.Println("He entrado a SC")
 		LeerFichero(file)
 		raData.PostProtocol()
+		fmt.Println("He salido de SC")
+
 	}
 }

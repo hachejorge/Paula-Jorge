@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"practica2/ms"
-	"practica2/raRelojesLogicos"
 )
 
 type Barrier struct{}
@@ -27,13 +26,9 @@ func EscribirFichero(file string, text string) {
 	}
 }
 
-func ManageMsg(msgs *ms.MessageSystem, file string, request chan raRelojesLogicos.Request, reply chan raRelojesLogicos.Reply, okBarrier chan bool) {
+func ManageMsg(msgs *ms.MessageSystem, file string, okBarrier chan bool) {
 	for {
 		switch msg := (msgs.Receive()).(type) {
-		// case ra.Request: //
-		// 	request <- msg
-		// case ra.Reply: //
-		// 	reply <- msg
 		case Barrier:
 			okBarrier <- true
 		case Upgrade:

@@ -49,7 +49,7 @@ type RASharedDB struct {
 func New(me int, usersFile string, op string) *RASharedDB {
 	messageTypes := []ms.Message{Request{}, Reply{}}
 	msgs := ms.New(me, usersFile, messageTypes)
-	ra := RASharedDB{me, op, 0, 0, 0, false, make(map[Pair]bool), []bool{}, &msgs, make(chan bool), make(chan bool), sync.Mutex{}}
+	ra := RASharedDB{me, op, 0, 0, 0, false, make(map[Pair]bool), []bool{false, false, false}, &msgs, make(chan bool), make(chan bool), sync.Mutex{}}
 	ra.Exclusion[Pair{"Reader", "Reader"}] = false
 	ra.Exclusion[Pair{"Reader", "Writer"}] = true
 	ra.Exclusion[Pair{"Writer", "Reader"}] = true
@@ -106,7 +106,7 @@ func (ra *RASharedDB) PreProtocol() {
 
 	for i := 1; i <= N; i++ {
 		if i != ra.Me {
-			ra.ms.Send(i, Request{ra.OurSeqNum, ra.Me, ra.Op})
+			ra.ms.Send(i, Request{Clock: ra.OurSeqNum, Pid: ra.Me, Op: ra.Op})
 		}
 	}
 	<-ra.chrep
