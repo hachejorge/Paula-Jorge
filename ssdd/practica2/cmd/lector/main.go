@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"practica2/barrier"
 	"practica2/ms"
 	mm "practica2/msgManager"
-	"practica2/ra"
+	"practica2/raRelojesLogicos"
 	"strconv"
 )
 
@@ -32,21 +31,21 @@ func main() {
 	}
 
 	me, _ := strconv.Atoi(os.Args[1])
-	msgTypes := []ms.Message{ra.Request{}, ra.Reply{}, mm.Upgrade{}, barrier.Barrier{}}
+	msgTypes := []ms.Message{raRelojesLogicos.Request{}, raRelojesLogicos.Reply{}, mm.Upgrade{}, mm.Barrier{}}
 	msgs := ms.New(me, "../../ms/users.txt", msgTypes)
 
-	requests := make(chan ra.Request) //
-	replies := make(chan ra.Reply)    //
+	requests := make(chan raRelojesLogicos.Request) //
+	replies := make(chan raRelojesLogicos.Reply)    //
 	okBarrier := make(chan bool)
 
 	go mm.ManageMsg(&msgs, file, requests, replies, okBarrier)
 
 	// Crea RA
 
-	raData := ra.New(me, "../../ms/users.txt")
+	raData := raRelojesLogicos.New(me, "../../ms/usersRa.txt", "Reader")
 
 	// Se comunica con la barrera
-	msgs.Send(ra.N+1, barrier.Barrier{})
+	msgs.Send(raRelojesLogicos.N+1, mm.Barrier{})
 	<-okBarrier
 
 	for {

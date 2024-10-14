@@ -14,22 +14,30 @@ import (
 )
 
 const (
-	N = 4
+	N = 3
 )
 
 type Request struct {
 	Clock int
 	Pid   int
+	Op    string
 }
 
 type Reply struct{}
 
+type Pair struct {
+	Op1 string
+	Op2 string
+}
+
 type RASharedDB struct {
-	me        int
+	Me        int    // Pid del proceso
+	Op        string // Tipo de proceso "Reader" o "Writer"
 	OurSeqNum int
 	HigSeqNum int
 	OutRepCnt int
 	ReqCS     bool
+	Exclusion map[Pair]bool
 	RepDefd   []bool
 	ms        *ms.MessageSystem
 	done      chan bool
@@ -38,10 +46,14 @@ type RASharedDB struct {
 	// TODO: completar
 }
 
-func New(me int, usersFile string) *RASharedDB {
+func New(me int, usersFile string, op string) *RASharedDB {
 	messageTypes := []ms.Message{Request{}, Reply{}}
 	msgs := ms.New(me, usersFile, messageTypes)
-	ra := RASharedDB{me, 0, 0, 0, false, []bool{}, &msgs, make(chan bool), make(chan bool), sync.Mutex{}}
+	ra := RASharedDB{me, op, 0, 0, 0, false, make(map[Pair]bool), []bool{}, &msgs, make(chan bool), make(chan bool), sync.Mutex{}}
+	ra.Exclusion[Pair{"Reader", "Reader"}] = false
+	ra.Exclusion[Pair{"Reader", "Writer"}] = true
+	ra.Exclusion[Pair{"Writer", "Reader"}] = true
+	ra.Exclusion[Pair{"Writer", "Writer"}] = true
 
 	go func() {
 		for {
@@ -55,7 +67,7 @@ func New(me int, usersFile string) *RASharedDB {
 					if ra.HigSeqNum < msg.Clock {
 						ra.HigSeqNum = msg.Clock
 					}
-					deferIt := ra.ReqCS && (msg.Clock > ra.OurSeqNum || (msg.Clock == ra.OurSeqNum && msg.Pid > ra.me))
+					deferIt := ra.ReqCS && (msg.Clock > ra.OurSeqNum || (msg.Clock == ra.OurSeqNum && msg.Pid > ra.Me)) && ra.Exclusion[Pair{ra.Op, msg.Op}]
 					ra.Mutex.Unlock()
 
 					if deferIt {
@@ -93,8 +105,8 @@ func (ra *RASharedDB) PreProtocol() {
 	ra.OutRepCnt = N - 1
 
 	for i := 1; i <= N; i++ {
-		if i != ra.me {
-			ra.ms.Send(i, Request{ra.OurSeqNum, ra.me})
+		if i != ra.Me {
+			ra.ms.Send(i, Request{ra.OurSeqNum, ra.Me, ra.Op})
 		}
 	}
 	<-ra.chrep

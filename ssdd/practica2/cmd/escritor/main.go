@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	br "practica2/barrier"
 	"practica2/ms"
 	mm "practica2/msgManager"
-	"practica2/ra"
+	"practica2/raRelojesLogicos"
 	"strconv"
 )
 
@@ -23,21 +22,21 @@ func main() {
 	}
 
 	me, _ := strconv.Atoi(os.Args[1])
-	msgTypes := []ms.Message{ra.Request{}, ra.Reply{}, mm.Upgrade{}, br.Barrier{}}
+	msgTypes := []ms.Message{raRelojesLogicos.Request{}, raRelojesLogicos.Reply{}, mm.Upgrade{}, mm.Barrier{}}
 	msgs := ms.New(me, "../../ms/users.txt", msgTypes)
 
-	requests := make(chan ra.Request)
-	replies := make(chan ra.Reply)
+	requests := make(chan raRelojesLogicos.Request)
+	replies := make(chan raRelojesLogicos.Reply)
 	okBarrier := make(chan bool)
 
 	go mm.ManageMsg(&msgs, file, requests, replies, okBarrier)
 
 	// Crea RA
 
-	raData := ra.New(me, "../../ms/users.txt")
+	raData := raRelojesLogicos.New(me, "../../ms/usersRAs.txt", "Writer")
 
 	// Se comunica con la barrera
-	msgs.Send(ra.N+1, br.Barrier{})
+	msgs.Send(raRelojesLogicos.N+1, mm.Barrier{})
 	<-okBarrier
 
 	text := os.Args[1]
@@ -45,7 +44,7 @@ func main() {
 	for {
 		raData.PreProtocol()
 		mm.EscribirFichero(file, os.Args[1])
-		for i := 1; i < ra.N; i++ {
+		for i := 1; i < raRelojesLogicos.N; i++ {
 			if i != me {
 				msgs.Send(me, mm.Upgrade{Text: text})
 			}

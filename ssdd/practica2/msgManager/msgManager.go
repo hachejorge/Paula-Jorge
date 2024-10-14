@@ -3,10 +3,11 @@ package mm
 import (
 	"fmt"
 	"os"
-	"practica2/barrier"
 	"practica2/ms"
-	"practica2/ra"
+	"practica2/raRelojesLogicos"
 )
+
+type Barrier struct{}
 
 type Upgrade struct {
 	Text string
@@ -26,14 +27,14 @@ func EscribirFichero(file string, text string) {
 	}
 }
 
-func ManageMsg(msgs *ms.MessageSystem, file string, request chan ra.Request, reply chan ra.Reply, okBarrier chan bool) {
+func ManageMsg(msgs *ms.MessageSystem, file string, request chan raRelojesLogicos.Request, reply chan raRelojesLogicos.Reply, okBarrier chan bool) {
 	for {
 		switch msg := (msgs.Receive()).(type) {
-		case ra.Request: //
-			request <- msg
-		case ra.Reply: //
-			reply <- msg
-		case barrier.Barrier:
+		// case ra.Request: //
+		// 	request <- msg
+		// case ra.Reply: //
+		// 	reply <- msg
+		case Barrier:
 			okBarrier <- true
 		case Upgrade:
 			EscribirFichero(file, msg.Text)
