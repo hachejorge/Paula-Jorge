@@ -22,7 +22,7 @@ const (
 )
 
 type Request struct {
-	Clock govec.VectorClock
+	Clock vclock.VClock
 	Pid   int
 	Op    string
 }
@@ -49,7 +49,7 @@ type RASharedDB struct {
 	Mutex     sync.Mutex // mutex para proteger concurrencia sobre las variables
 	// TODO: completar
 	logger *govec.GoLog
-	vClock govec.VectorClock
+	vClock vclock.VClock
 }
 
 func New(me int, usersFile string, op string) *RASharedDB {
@@ -58,7 +58,7 @@ func New(me int, usersFile string, op string) *RASharedDB {
 
 	logger := govec.InitGoVector(strconv.Itoa(me), "LogFile", govec.GetDefaultConfig())
 
-	vClock := govec.NewVectorClock()
+	vClock := vclock.New()
 
 	ra := RASharedDB{me, op, 0, false, make(map[Pair]bool), []bool{}, &msgs, make(chan bool), make(chan bool), sync.Mutex{}, logger, vClock}
 
@@ -77,7 +77,7 @@ func New(me int, usersFile string, op string) *RASharedDB {
 				case Request:
 					ra.Mutex.Lock()
 
-					ra.vClock.Tick(ra.me)
+					ra.vClock.Tick(strconv.Itoa(ra.me))
 					//deferIt := ra.ReqCS && (ra.vClock.Compare(msg.Clock, govec.Descendant) == 1 || (ra.vClock.Compare(msg.Clock, govec.Equal) == 1 && msg.Pid > ra.me))
 					deferIt := ra.ReqCS && happensBefore(ra.vClock, msg.Clock, ra.me, msg.Pid) && ra.Exclusion[Pair{ra.Op, msg.Op}]
 
@@ -115,7 +115,7 @@ func New(me int, usersFile string, op string) *RASharedDB {
 func (ra *RASharedDB) PreProtocol() {
 	ra.Mutex.Lock()
 	ra.ReqCS = true
-	ra.vClock.Tick(ra.me - 1)
+	ra.vClock.Tick(strconv.Itoa(ra.me))
 	ra.Mutex.Unlock()
 
 	ra.OutRepCnt = N - 1
@@ -135,9 +135,9 @@ func (ra *RASharedDB) PreProtocol() {
 func (ra *RASharedDB) PostProtocol() {
 	ra.ReqCS = false
 	for i, defered := range ra.RepDefd {
-		if defered == true {
-			ra.RepDefd[i] = false
-			ra.ms.Send(i+1, Reply{})
+		if defered {
+			ra.RepDefd[i-1] = false
+			ra.ms.Send(i, Reply{})
 		}
 	}
 }
