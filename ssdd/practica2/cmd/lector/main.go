@@ -8,6 +8,7 @@ import (
 	mm "practica2/msgManager"
 	"practica2/ra"
 	"strconv"
+	"time"
 )
 
 func LeerFichero(file string) string {
@@ -36,8 +37,9 @@ func main() {
 	fmt.Println("Se ha creado el msgs")
 
 	okBarrier := make(chan bool)
+	okUpgrade := make(chan bool)
 
-	go mm.ManageMsg(&msgs, file, okBarrier)
+	go mm.ManageMsg(&msgs, file, okBarrier, okUpgrade)
 
 	// Crea RA
 
@@ -49,6 +51,7 @@ func main() {
 	fmt.Println("Se ha superado la barrera")
 
 	for {
+		time.Sleep(2 * time.Second)
 		fmt.Println("Quiero entrar a SC")
 		raData.PreProtocol()
 		fmt.Println("He entrado a SC")

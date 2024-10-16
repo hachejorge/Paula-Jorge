@@ -9,6 +9,7 @@
 package ra
 
 import (
+	"fmt"
 	"practica2/ms"
 	"strconv"
 	"sync"
@@ -78,13 +79,24 @@ func New(me int, usersFile string, op string) *RASharedDB {
 			default:
 				switch msg := (ra.ms.Receive()).(type) {
 				case Request:
-					ra.Mutex.Lock()
 
+					fmt.Println("reloj recibido")
+					msg.Clock.PrintVC()
+					fmt.Println("mi reloj sin aumentar")
+					ra.vClock.PrintVC()
 					ra.vClock.Tick(strconv.Itoa(ra.me - 1))
+					fmt.Println("reloj aumentado")
+
+					ra.vClock.PrintVC()
 
 					ra.vClock.Merge(msg.Clock)
-
 					//deferIt := ra.ReqCS && (ra.vClock.Compare(msg.Clock, govec.Descendant) == 1 || (ra.vClock.Compare(msg.Clock, govec.Equal) == 1 && msg.Pid > ra.me))
+
+					fmt.Println("reloj mezclado")
+					ra.vClock.PrintVC()
+
+					ra.Mutex.Lock()
+
 					deferIt := ra.ReqCS && happensBefore(ra.vClock, msg.Clock, ra.me, msg.Pid) && ra.Exclusion[Pair{ra.Op, msg.Op}]
 
 					ra.Mutex.Unlock()
@@ -119,14 +131,18 @@ func (ra *RASharedDB) PreProtocol() {
 	ra.Mutex.Lock()
 	ra.ReqCS = true
 	ra.vClock.Tick(strconv.Itoa(ra.me - 1))
+	fmt.Println("Reloj Aumentado")
 	vClockSend := ra.vClock.Copy()
+	fmt.Println("Reloj copiado")
 	ra.Mutex.Unlock()
 
 	ra.OutRepCnt = N - 1
 
 	for i := 1; i <= N; i++ {
 		if i != ra.me {
+			//vClockSend.PrintVC();
 			ra.ms.Send(i, Request{Clock: vClockSend, Pid: ra.me, Op: ra.Op})
+			fmt.Println("Request enviada")
 		}
 	}
 	<-ra.chrep

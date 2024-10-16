@@ -7,6 +7,7 @@ import (
 	mm "practica2/msgManager"
 	"practica2/ra"
 	"strconv"
+	"time"
 )
 
 // Como primer argumento se manda
@@ -22,13 +23,14 @@ func main() {
 	}
 
 	me, _ := strconv.Atoi(os.Args[1])
-	msgTypes := []ms.Message{ra.Request{}, ra.Reply{}, mm.Upgrade{}, mm.Barrier{}}
+	msgTypes := []ms.Message{mm.Reply{}, mm.Upgrade{}, mm.Barrier{}}
 	msgs := ms.New(me, "../../ms/users.txt", msgTypes)
 	fmt.Println("Se ha creado el msgs")
 
 	okBarrier := make(chan bool)
+	okUpgrade := make(chan bool)
 
-	go mm.ManageMsg(&msgs, file, okBarrier)
+	go mm.ManageMsg(&msgs, file, okBarrier, okUpgrade)
 
 	// Crea RA
 
@@ -42,15 +44,21 @@ func main() {
 	text := os.Args[1]
 
 	for {
+		time.Sleep(2 * time.Second)
 		fmt.Println("Quiero entrar a SC")
 		raData.PreProtocol()
 		fmt.Println("He entrado a SC")
 		mm.EscribirFichero(file, os.Args[1])
 		for i := 1; i <= ra.N; i++ {
 			if i != me {
-				msgs.Send(i, mm.Upgrade{Text: text})
+				msgs.Send(i, mm.Upgrade{Origin: me, Text: text})
 			}
 		}
+		// Recibir N replies
+		for i := 1; i < ra.N-1; i++ {
+			<-okUpgrade
+		}
+
 		raData.PostProtocol()
 		fmt.Println("He salido de SC")
 	}
