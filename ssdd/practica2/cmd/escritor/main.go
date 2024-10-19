@@ -12,7 +12,7 @@ import (
 
 // Como primer argumento se manda
 func main() {
-	fmt.Println("Iniciando lector " + os.Args[1])
+	fmt.Println("Iniciando escritor " + os.Args[1])
 
 	// Crea su propio fichero
 	file := "fichero" + os.Args[1] + ".txt"
@@ -25,7 +25,6 @@ func main() {
 	me, _ := strconv.Atoi(os.Args[1])
 	msgTypes := []ms.Message{mm.Reply{}, mm.Upgrade{}, mm.Barrier{}}
 	msgs := ms.New(me, "../../ms/users.txt", msgTypes)
-	fmt.Println("Se ha creado el msgs")
 
 	okBarrier := make(chan bool)
 	okUpgrade := make(chan bool)
@@ -52,13 +51,15 @@ func main() {
 		for i := 1; i <= ra.N; i++ {
 			if i != me {
 				msgs.Send(i, mm.Upgrade{Origin: me, Text: text})
+				fmt.Println("Enviada upgrade a ", i)
 			}
 		}
+		//fmt.Println("Upgrades mandados esperando confirmación")
 		// Recibir N replies
-		for i := 1; i < ra.N-1; i++ {
+		for i := 1; i < ra.N; i++ {
 			<-okUpgrade
 		}
-
+		fmt.Println("Respuestas al upgrade completadas")
 		raData.PostProtocol()
 		fmt.Println("He salido de SC")
 	}
