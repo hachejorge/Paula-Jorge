@@ -148,7 +148,7 @@ func (ra *RASharedDB) PostProtocol() {
 	ra.ReqCS = false
 	for i, defered := range ra.RepDefd {
 		if defered {
-			ra.RepDefd[i-1] = false
+			ra.RepDefd[i] = false
 			ra.ms.Send(i+1, Reply{})
 			fmt.Println("Enviada confirmación para acceder a SC a", i+1)
 		}
