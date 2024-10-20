@@ -23,7 +23,7 @@ func LeerFichero(file string) string {
 func main() {
 	fmt.Println("Iniciando lector " + os.Args[1])
 
-	// Crea su propio fichero
+	// Crea su propio fichero según su PID
 	file := "fichero" + os.Args[1] + ".txt"
 	_, err := os.Create(file)
 	if err != nil {
@@ -31,6 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Crea el msgSystem con tipos de mensaje Barrier, Upgrade y Reply para actualizar los ficheros
 	me, _ := strconv.Atoi(os.Args[1])
 	msgTypes := []ms.Message{ra.Request{}, mm.Reply{}, mm.Upgrade{}, mm.Barrier{}}
 	msgs := ms.New(me, "../../ms/users.txt", msgTypes)
@@ -39,10 +40,10 @@ func main() {
 	okBarrier := make(chan bool)
 	okUpgrade := make(chan bool)
 
+	// Proceso que gestiona la comunicación de mensajes con la barrera, y otros lectores y escritores 
 	go mm.ManageMsg(&msgs, file, okBarrier, okUpgrade)
 
-	// Crea RA
-
+	// Crea RA indicando su PID y el tipo de proceso
 	raData := ra.New(me, "../../ms/usersRA.txt", "Reader")
 
 	// Se comunica con la barrera
@@ -55,7 +56,8 @@ func main() {
 		fmt.Println("Quiero entrar a SC")
 		raData.PreProtocol()
 		fmt.Println("He entrado a SC")
-		LeerFichero(file)
+		textFile := LeerFichero(file)
+		fmt.Println(textFile)
 		raData.PostProtocol()
 		fmt.Println("He salido de SC")
 
