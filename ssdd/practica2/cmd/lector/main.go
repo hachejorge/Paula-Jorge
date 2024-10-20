@@ -33,7 +33,7 @@ func main() {
 
 	// Crea el msgSystem con tipos de mensaje Barrier, Upgrade y Reply para actualizar los ficheros
 	me, _ := strconv.Atoi(os.Args[1])
-	msgTypes := []ms.Message{ra.Request{}, mm.Reply{}, mm.Upgrade{}, mm.Barrier{}}
+	msgTypes := []ms.Message{mm.Reply{}, mm.Upgrade{}, mm.Barrier{}}
 	msgs := ms.New(me, "../../ms/users.txt", msgTypes)
 	fmt.Println("Se ha creado el msgs")
 
