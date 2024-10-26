@@ -84,7 +84,7 @@ type NodoRaft struct {
 	VotedFor    int // A quién he votado
 
 	VotesReceived int    // Número de votos recibidos
-	Estado        string // Rol del nodo, ("LEADER", "FOLLOWER", "CANDIDATE")
+	Rol           string // Rol del nodo, ("LEADER", "FOLLOWER", "CANDIDATE")
 
 	// mirar figura 2 para descripción del estado que debe mantenre un nodo Raft
 }
@@ -108,8 +108,8 @@ func NuevoNodo(nodos []rpctimeout.HostPort, yo int,
 	nr := &NodoRaft{}
 	nr.Nodos = nodos
 	nr.Yo = yo
-	nr.IdLider = -1
-	nr.Estado = "FOLLOWER"
+	nr.IdLider = IntNOINICIALIZADO
+	nr.Rol = "FOLLOWER"
 
 	if kEnableDebugLogs {
 		nombreNodo := nodos[yo].Host() + "_" + nodos[yo].Port()
@@ -139,6 +139,7 @@ func NuevoNodo(nodos []rpctimeout.HostPort, yo int,
 	}
 
 	// Añadir codigo de inicialización
+	go raftHandler(nr)
 
 	return nr
 }
@@ -245,8 +246,8 @@ func (nr *NodoRaft) SometerOperacionRaft(operacion TipoOperacion,
 // -----------
 // Nombres de campos deben comenzar con letra mayuscula !
 type ArgsPeticionVoto struct {
-	Term        int
-	CandidateID int
+	CandidateTerm int
+	CandidateID   int
 }
 
 // Structura de ejemplo de respuesta de RPC PedirVoto,
@@ -318,6 +319,69 @@ func (nr *NodoRaft) AppendEntries(args *ArgAppendEntries,
 // y no la estructura misma.
 func (nr *NodoRaft) enviarPeticionVoto(nodo int, args *ArgsPeticionVoto,
 	reply *RespuestaPeticionVoto) bool {
+	
+		err := nr.Nodos[nodo].CallTimeout("Raft.RequestVote", args, reply, )
+	
+		if err != nil {
+			return false
+		} else {
+			if reply.Term > nr.CurrentTerm {
+				//Si pido el voto a un nodo con mayor mandato, dejo de ser
+				//candidato y vuelvo a ser follower
+				nr.CurrentTerm = reply.Term
+				nr.FollowerChan <- true
+				
+			} else if reply.VoteGranted {
+			//Si me dan el voto compruebo si tengo mayoría simple, en cuyo caso
+			//me convierto en líder
+			nr.NumVotos++
+			if nr.NumVotos > len(nr.Nodos)/2 {
+				nr.LeaderChan <- true
+			}
+			return true
+			}
+		}
+}	
+	
 
-	return true
+func requestVotes(nr *NodoRaft){
+	var reply RespuestaPeticionVoto
+	for i := 0; i < len(nr.Nodos); i++ {
+		if i != nr.Yo {
+			go nr.enviarPeticionVoto(i,&ArgsPeticionVoto{nr.CurrentTerm, nr.Yo}, &reply)
+		}
+	}
+}
+
+
+// Funcion para gestionar el comportamiento de un nodo en el algoritmo de consenso de raft
+func raftHandler(nr *NodoRaft) {
+	for {
+		if nr.Rol == "FOLLOWER" {
+			select {
+			case // Recibe el heartbeat
+			case // Expira timeout
+				
+			}
+		} 
+		else if nr.Rol == "LEADER" {
+			nr.IdLider = nr.Yo
+			// Enviar heartbeats
+			select {
+			case // Descubre mandato mayor
+			case // Expira el time out
+			}
+			
+		}
+		else { // nr.Rol == "CANDIDATE"
+			nr.CurrentTerm++
+			nr.VotedFor = nr.Yo
+			nr.VotesReceived = 1
+			// RequestVotes
+			requestVotes(nr)
+			select {
+			case 
+			}
+		}
+	}
 }
