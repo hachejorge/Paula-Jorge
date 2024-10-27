@@ -266,6 +266,22 @@ func (nr *NodoRaft) PedirVoto(peticion *ArgsPeticionVoto,
 	// Vuestro codigo aqui
 	nr.enviarPeticionVoto(nr.Yo, peticion, reply)
 
+	if peticion.CandidateTerm > nr.CurrentTerm { // Si me llega un mandato mayor al mío le doy el voto
+		reply.Term = peticion.CandidateTerm
+		reply.VoteGranted = true
+		nr.CurrentTerm = peticion.CandidateTerm
+		nr.VotedFor = peticion.CandidateID
+		if nr.Rol == "LEADER" || nr.Rol == "CANDIDATE" {
+			// Vuelvo a ser follower
+		}
+	} else if peticion.CandidateTerm < nr.CurrentTerm { // Si llega un mandato menor al mío no le doy el voto
+		reply.Term = nr.CurrentTerm
+		reply.VoteGranted = false
+	} else if peticion.CandidateTerm == nr.CurrentTerm && peticion.CandidateID != nr.VotedFor {
+		reply.Term = nr.CurrentTerm
+		reply.VoteGranted = false
+	}
+
 	return nil
 }
 
@@ -320,7 +336,7 @@ func (nr *NodoRaft) AppendEntries(args *ArgAppendEntries,
 func (nr *NodoRaft) enviarPeticionVoto(nodo int, args *ArgsPeticionVoto,
 	reply *RespuestaPeticionVoto) bool {
 	
-		err := nr.Nodos[nodo].CallTimeout("Raft.RequestVote", args, reply, )
+		err := nr.Nodos[nodo].CallTimeout("NodoRaft.PedirVoto", args, reply, )
 	
 		if err != nil {
 			return false
