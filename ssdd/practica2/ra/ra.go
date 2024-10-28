@@ -14,7 +14,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/DistributedClocks/GoVector/govec"
 	"github.com/DistributedClocks/GoVector/govec/vclock"
 )
 
@@ -28,7 +27,9 @@ type Request struct {
 	Op    string
 }
 
-type Reply struct{}
+type Reply struct {
+	Pid int
+}
 
 type Pair struct {
 	Op1 string
@@ -38,39 +39,39 @@ type Pair struct {
 type RASharedDB struct {
 	// OurSeqNum int
 	// HigSeqNum int
-	me        int
+	Me        int
 	Op        string
 	OutRepCnt int
 	ReqCS     bool
 	Exclusion map[Pair]bool
 	RepDefd   []bool
-	ms        *ms.MessageSystem
-	done      chan bool
-	chrep     chan bool  //channel replies
+	Ms        *ms.MessageSystem
+	Done      chan bool
+	Chrep     chan bool  //channel replies
 	Mutex     sync.Mutex // mutex para proteger concurrencia sobre las variables
 	// TODO: completar
-	logger    *govec.GoLog
-	vClock    vclock.VClock
-	vClockMax vclock.VClock
+	//logger    *govec.GoLog
+	VClock    vclock.VClock
+	VClockMax vclock.VClock
 }
 
 func New(me int, usersFile string, op string) *RASharedDB {
 	messageTypes := []ms.Message{Request{}, Reply{}}
 	msgs := ms.New(me, usersFile, messageTypes)
 
-	logger := govec.InitGoVector(strconv.Itoa(me), "LogFile", govec.GetDefaultConfig())
+	//logger := govec.InitGoVector(strconv.Itoa(me), "LogFile", govec.GetDefaultConfig())
 
 	vClock := vclock.New()
 	for i := 0; i < N; i++ {
-		vClock.Tick(strconv.Itoa(i))
+		vClock.Set(strconv.Itoa(i), 0)
 	}
 
 	vClockMax := vclock.New()
 	for i := 0; i < N; i++ {
-		vClockMax.Tick(strconv.Itoa(i))
+		vClockMax.Set(strconv.Itoa(i), 0)
 	}
 
-	ra := RASharedDB{me, op, 0, false, make(map[Pair]bool), make([]bool, N), &msgs, make(chan bool), make(chan bool), sync.Mutex{}, logger, vClock, vClockMax}
+	ra := RASharedDB{me, op, 0, false, make(map[Pair]bool), make([]bool, N), &msgs, make(chan bool), make(chan bool), sync.Mutex{}, vClock, vClockMax}
 
 	ra.Exclusion[Pair{"Reader", "Reader"}] = false
 	ra.Exclusion[Pair{"Reader", "Writer"}] = true
@@ -80,32 +81,42 @@ func New(me int, usersFile string, op string) *RASharedDB {
 	go func() {
 		for {
 			select {
-			case <-ra.done:
+			case <-ra.Done:
 				return
 			default:
-				switch msg := (ra.ms.Receive()).(type) {
+				switch msg := (ra.Ms.Receive()).(type) {
 				case Request:
 
-					ra.vClockMax.Tick(strconv.Itoa(ra.me - 1))
+					ra.VClockMax.Tick(strconv.Itoa(ra.Me - 1))
 
-					ra.vClockMax.Merge(msg.Clock)
+					ra.VClockMax.Merge(msg.Clock)
+
 					ra.Mutex.Lock()
 
-					deferIt := ra.ReqCS && happensBefore(ra.vClock, msg.Clock, ra.me, msg.Pid) && ra.Exclusion[Pair{ra.Op, msg.Op}]
+					fmt.Print("Mi reloj que solicita entrar ")
+					ra.VClock.PrintVC()
+					fmt.Println("VS")
+					fmt.Print("Otro reloj que solicita entrar de ", msg.Pid)
+					msg.Clock.PrintVC()
 
-					ra.Mutex.Unlock()
+					deferIt := ra.ReqCS && happensBefore(ra.VClock, msg.Clock, ra.Me, msg.Pid) && ra.Exclusion[Pair{ra.Op, msg.Op}]
 
 					if deferIt {
 						ra.RepDefd[msg.Pid-1] = true
+						fmt.Println("Peticion a ", msg.Pid, "diferida")
 					} else {
-						ra.ms.Send(msg.Pid, Reply{})
+						ra.Ms.Send(msg.Pid, Reply{ra.Me})
+						fmt.Println("Enviada reply a ", msg.Pid)
 					}
+
+					ra.Mutex.Unlock()
 
 				case Reply:
 					if ra.ReqCS {
+						fmt.Println("Recibido reply de ", msg.Pid)
 						ra.OutRepCnt = ra.OutRepCnt - 1
 						if ra.OutRepCnt == 0 {
-							ra.chrep <- true
+							ra.Chrep <- true
 						}
 					}
 
@@ -124,20 +135,24 @@ func New(me int, usersFile string, op string) *RASharedDB {
 func (ra *RASharedDB) PreProtocol() {
 	ra.Mutex.Lock()
 	ra.ReqCS = true
-	ra.vClockMax.Tick(strconv.Itoa(ra.me - 1))
-	ra.vClock = ra.vClockMax.Copy()
-	ra.Mutex.Unlock()
+	ra.VClock.Tick(strconv.Itoa(ra.Me - 1))
+	ra.VClockMax = ra.VClock.Copy()
+
+	fmt.Print("Mi reloj que solicita entrar ")
+	ra.VClockMax.PrintVC()
 
 	ra.OutRepCnt = N - 1
 
 	for i := 1; i <= N; i++ {
-		if i != ra.me {
+		if i != ra.Me {
 			//vClockSend.PrintVC();
-			ra.ms.Send(i, Request{Clock: ra.vClock, Pid: ra.me, Op: ra.Op})
+			ra.Ms.Send(i, Request{Clock: ra.VClock, Pid: ra.Me, Op: ra.Op})
 			fmt.Println("Request enviada para acceder a SC a", i)
 		}
 	}
-	<-ra.chrep
+	ra.Mutex.Unlock()
+
+	<-ra.Chrep
 }
 
 // Pre: Verdad
@@ -145,19 +160,21 @@ func (ra *RASharedDB) PreProtocol() {
 //
 //	Ricart-Agrawala Generalizado
 func (ra *RASharedDB) PostProtocol() {
+	ra.Mutex.Lock()
 	ra.ReqCS = false
 	for i, defered := range ra.RepDefd {
 		if defered {
+			ra.Ms.Send(i+1, Reply{})
 			ra.RepDefd[i] = false
-			ra.ms.Send(i+1, Reply{})
 			fmt.Println("Enviada confirmación para acceder a SC a", i+1)
 		}
 	}
+	ra.Mutex.Unlock()
 }
 
 func (ra *RASharedDB) Stop() {
-	ra.ms.Stop()
-	ra.done <- true
+	ra.Ms.Stop()
+	ra.Done <- true
 }
 
 func happensBefore(a vclock.VClock, b vclock.VClock, pid_a int, pid_b int) bool {
