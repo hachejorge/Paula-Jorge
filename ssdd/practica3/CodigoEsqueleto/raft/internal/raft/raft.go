@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 
 	//"crypto/rand"
@@ -79,6 +80,10 @@ type NodoRaft struct {
 	Logger *log.Logger
 
 	// Vuestros datos aqui.
+	// Canales para comunicarse
+	Leader    chan bool
+	Follower  chan bool
+	Heartbeat chan bool
 
 	CurrentTerm int // Periodo actual
 	VotedFor    int // A quién he votado
@@ -263,8 +268,6 @@ type RespuestaPeticionVoto struct {
 // Metodo para RPC PedirVoto
 func (nr *NodoRaft) PedirVoto(peticion *ArgsPeticionVoto,
 	reply *RespuestaPeticionVoto) error {
-	// Vuestro codigo aqui
-	nr.enviarPeticionVoto(nr.Yo, peticion, reply)
 
 	if peticion.CandidateTerm > nr.CurrentTerm { // Si me llega un mandato mayor al mío le doy el voto
 		reply.Term = peticion.CandidateTerm
@@ -273,11 +276,9 @@ func (nr *NodoRaft) PedirVoto(peticion *ArgsPeticionVoto,
 		nr.VotedFor = peticion.CandidateID
 		if nr.Rol == "LEADER" || nr.Rol == "CANDIDATE" {
 			// Vuelvo a ser follower
+			nr.Follower <- true
 		}
-	} else if peticion.CandidateTerm < nr.CurrentTerm { // Si llega un mandato menor al mío no le doy el voto
-		reply.Term = nr.CurrentTerm
-		reply.VoteGranted = false
-	} else if peticion.CandidateTerm == nr.CurrentTerm && peticion.CandidateID != nr.VotedFor {
+	} else { // Si llega un mandato menor al mío no le doy el voto o igual al mío
 		reply.Term = nr.CurrentTerm
 		reply.VoteGranted = false
 	}
@@ -292,13 +293,29 @@ type ArgAppendEntries struct {
 }
 
 type Results struct {
+	Term int
 	// Vuestros datos aqui
 }
 
 // Metodo de tratamiento de llamadas RPC AppendEntries
 func (nr *NodoRaft) AppendEntries(args *ArgAppendEntries,
 	results *Results) error {
-	// Completar....
+	if args.Term < nr.CurrentTerm { // Heartbeat atrasado
+		results.Term = nr.CurrentTerm
+	} else if args.Term == nr.CurrentTerm { // Recibo heartbeat en mi mismo periodo
+		nr.IdLider = args.LeaderID
+		results.Term = args.Term
+		nr.Heartbeat <- true
+	} else { // Recibo heartbeat de un periodo futuro
+		nr.IdLider = args.LeaderID
+		nr.CurrentTerm = args.Term
+		results.Term = args.Term
+		if nr.Rol == "FOLLOWER" {
+			nr.Heartbeat <- true
+		} else { // Si es líder o candidato vuelve a ser follower
+			nr.Follower <- true
+		}
+	}
 
 	return nil
 }
@@ -335,68 +352,113 @@ func (nr *NodoRaft) AppendEntries(args *ArgAppendEntries,
 // y no la estructura misma.
 func (nr *NodoRaft) enviarPeticionVoto(nodo int, args *ArgsPeticionVoto,
 	reply *RespuestaPeticionVoto) bool {
-	
-		err := nr.Nodos[nodo].CallTimeout("NodoRaft.PedirVoto", args, reply, )
-	
-		if err != nil {
-			return false
-		} else {
-			if reply.Term > nr.CurrentTerm {
-				//Si pido el voto a un nodo con mayor mandato, dejo de ser
-				//candidato y vuelvo a ser follower
-				nr.CurrentTerm = reply.Term
-				nr.FollowerChan <- true
-				
-			} else if reply.VoteGranted {
+
+	err := nr.Nodos[nodo].CallTimeout("NodoRaft.PedirVoto", args, reply, 20*time.Millisecond)
+
+	if err != nil {
+		return false
+	} else {
+		if reply.Term > nr.CurrentTerm {
+			//Si pido el voto a un nodo con mayor mandato, dejo de ser
+			//candidato y vuelvo a ser follower
+			nr.CurrentTerm = reply.Term
+			nr.Follower <- true
+
+		} else if reply.VoteGranted {
 			//Si me dan el voto compruebo si tengo mayoría simple, en cuyo caso
 			//me convierto en líder
-			nr.NumVotos++
-			if nr.NumVotos > len(nr.Nodos)/2 {
-				nr.LeaderChan <- true
-			}
-			return true
+			nr.VotesReceived++
+			if nr.VotesReceived > len(nr.Nodos)/2 {
+				nr.Leader <- true
 			}
 		}
-}	
-	
+		return true
+	}
+}
 
-func requestVotes(nr *NodoRaft){
+func (nr *NodoRaft) enviarLatido(nodo int, args *ArgAppendEntries,
+	results *Results) bool {
+
+	err := nr.Nodos[nodo].CallTimeout("NodoRaft.AppendEntries", args, results, 20*time.Millisecond)
+	if err != nil {
+		return false
+	} else {
+		if results.Term > nr.CurrentTerm {
+			//Si he enviado heartbeat a un nodo con mayor mandato dejo de ser
+			//líder, actualizo mi mandato y vuelvo a ser follower
+			nr.CurrentTerm = results.Term
+			nr.IdLider = -1
+			nr.Follower <- true
+		}
+		return true
+	}
+}
+
+func requestVotes(nr *NodoRaft) {
 	var reply RespuestaPeticionVoto
 	for i := 0; i < len(nr.Nodos); i++ {
 		if i != nr.Yo {
-			go nr.enviarPeticionVoto(i,&ArgsPeticionVoto{nr.CurrentTerm, nr.Yo}, &reply)
+			go nr.enviarPeticionVoto(i, &ArgsPeticionVoto{nr.CurrentTerm, nr.Yo}, &reply)
 		}
 	}
 }
 
+func sendHeartbeats(nr *NodoRaft) {
+	var reply Results
+	for i := 0; i < len(nr.Nodos); i++ {
+		if i != nr.Yo {
+			go nr.enviarLatido(i, &ArgAppendEntries{nr.CurrentTerm, nr.Yo}, &reply)
+		}
+	}
+}
+
+func getRandomTimeout() time.Duration {
+	// Genera un timeout aleatorio entre 150 y 300 ms
+	return time.Duration(150+rand.Intn(150)) * time.Millisecond
+}
 
 // Funcion para gestionar el comportamiento de un nodo en el algoritmo de consenso de raft
 func raftHandler(nr *NodoRaft) {
+	//var timerFollower time.Timer
+	//var timerLeader time.Timer
+	//timerLeader := time.NewTimer(50 * time.Millisecond)
+
 	for {
 		if nr.Rol == "FOLLOWER" {
+			timerFollower := time.NewTimer(getRandomTimeout())
 			select {
-			case // Recibe el heartbeat
-			case // Expira timeout
-				
+			case <-nr.Heartbeat: // Recibe el heartbeat
+			// Sigo como follower
+			case <-timerFollower.C: // Expira timeout
+				nr.IdLider = -1
+				nr.Rol = "CANDIDATE"
 			}
-		} 
-		else if nr.Rol == "LEADER" {
+		} else if nr.Rol == "LEADER" {
 			nr.IdLider = nr.Yo
 			// Enviar heartbeats
+			sendHeartbeats(nr)
+			timerLeader := time.NewTimer(50 * time.Millisecond)
 			select {
-			case // Descubre mandato mayor
-			case // Expira el time out
+			case <-nr.Follower: // Descubre mandato mayor
+				nr.Rol = "Follower"
+			case <-timerLeader.C: // Expira el time out
+				// Sigo como leader
+				// Vuelvo a mandar HeartBeats
 			}
-			
-		}
-		else { // nr.Rol == "CANDIDATE"
+		} else { // nr.Rol == "CANDIDATE"
 			nr.CurrentTerm++
 			nr.VotedFor = nr.Yo
 			nr.VotesReceived = 1
-			// RequestVotes
 			requestVotes(nr)
+			// Tarda 2.5 segundos hasta iniciar una nueva elección
+			timerCandidate := time.NewTimer(2500 * time.Millisecond)
 			select {
-			case 
+			case <-nr.Leader: // Se convierte en líder
+				nr.Rol = "LEADER"
+			case <-nr.Follower: // Se convierte en follower
+				nr.Rol = "FOLLOWER"
+			case <-timerCandidate.C: // Se acaba el timeout
+				nr.Rol = "CANDIDATE" // Se vuelve a presentar como candidato
 			}
 		}
 	}
