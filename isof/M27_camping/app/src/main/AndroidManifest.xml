@@ -16,7 +16,7 @@
             android:name=".ui.ParcelaEdit"
             android:exported="false" />
         <activity
-            android:name=".ui.Notepad"
+            android:name=".ui.ParcelasListar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

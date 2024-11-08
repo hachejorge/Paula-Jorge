@@ -26,7 +26,7 @@ public interface ParcelaDao {
     @Query("DELETE FROM parcela")
     void deleteAll();
 
-    @Query("SELECT * FROM parcela ORDER BY name ASC")
+    @Query("SELECT * FROM parcela ORDER BY nombre ASC")
     LiveData<List<Parcela>> getOrderedParcelas();
 }
 

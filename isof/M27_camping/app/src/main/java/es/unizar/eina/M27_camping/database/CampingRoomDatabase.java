@@ -48,9 +48,9 @@ public abstract class CampingRoomDatabase extends RoomDatabase {
                 ParcelaDao dao = INSTANCE.parcelaDao();
                 dao.deleteAll();
 
-                Parcela parcela = new Parcela("La alameda", "Bonita parcela de 300m2, es muy acogedora", 8, 15.0);
+                Parcela parcela = new Parcela("La alameda", "Bonita parcela de 300m2, es muy acogedora", 8, 15.0f);
                 dao.insert(parcela);
-                parcela = new Parcela("Los pinares", "800m2, una locura", 16, 24.99);
+                parcela = new Parcela("Los pinares", "800m2, una locura", 16, 24.99f);
                 dao.insert(parcela);
             });
         }

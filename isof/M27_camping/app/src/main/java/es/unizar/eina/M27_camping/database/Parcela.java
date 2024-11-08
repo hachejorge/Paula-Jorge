@@ -1,6 +1,6 @@
 package es.unizar.eina.M27_camping.database;
 
-import androidx.anparcelation.NonNull;
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

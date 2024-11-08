@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'es.unizar.eina.notepad'
+    namespace 'es.unizar.eina.M27_camping'
     compileSdk 34
 
     defaultConfig {
-        applicationId "es.unizar.eina.notepad"
+        applicationId "es.unizar.eina.M27_camping"
         minSdk 24
         targetSdk 34
         versionCode 1
