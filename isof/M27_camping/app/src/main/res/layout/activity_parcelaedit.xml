@@ -42,27 +42,33 @@
         android:textSize="18sp" />
 
     <!-- Sección de Máximo de personas con tamaño reducido -->
-    <TextView android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/maxOcupantes"
         android:layout_margin="@dimen/big_padding"
+        android:text="@string/maxOcupantes"
         android:textSize="14sp" />
-    <EditText android:id="@+id/maxOcupantes"
-        android:layout_width="match_parent"
+
+    <EditText
+        android:id="@+id/maxOcupantes"
+        android:layout_width="191dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/big_padding"
         android:fontFamily="sans-serif-light"
         android:inputType="number"
         android:textSize="14sp" />
 
-    <!-- Sección de Precio por persona con tamaño reducido -->
-    <TextView android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/precioPorPersona"
         android:layout_margin="@dimen/big_padding"
+        android:text="@string/precioPorPersona"
         android:textSize="14sp" />
-    <EditText android:id="@+id/precioPorPersona"
-        android:layout_width="match_parent"
+
+    <!-- Sección de Precio por persona con tamaño reducido -->
+    <EditText
+        android:id="@+id/precioPorPersona"
+        android:layout_width="187dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/big_padding"
         android:fontFamily="sans-serif-light"

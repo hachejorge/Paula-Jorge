@@ -52,8 +52,20 @@ public class ParcelasListar extends AppCompatActivity {
         mFab = findViewById(R.id.fab);
         mFab.setOnClickListener(view -> createParela());
 
+        // Asigna el listener para editar
+        mAdapter.setOnEditClickListener(parcela -> parelaEdit(parcela));
+
+        // Configurar el listener para el botón de eliminar
+        mAdapter.setOnDeleteClickListener(parcela -> {
+            Toast.makeText(
+                    getApplicationContext(),
+                    "Borrando " + parcela.getNombre(),
+                    Toast.LENGTH_LONG).show();
+            mParcelaViewModel.delete(parcela);
+        });
+
         // It doesn't affect if we comment the following instruction
-        registerForContextMenu(mRecyclerView);
+        // registerForContextMenu(mRecyclerView);
 
     }
 

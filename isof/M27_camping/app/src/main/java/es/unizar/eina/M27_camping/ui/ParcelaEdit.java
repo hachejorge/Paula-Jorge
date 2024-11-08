@@ -43,6 +43,7 @@ public class ParcelaEdit extends AppCompatActivity {
         mPrecioPorPersonaText = findViewById(R.id.precioPorPersona);
 
         mSaveButton = findViewById(R.id.button_save);
+
         mSaveButton.setOnClickListener(view -> {
             Intent replyIntent = new Intent();
             if (TextUtils.isEmpty(mNombreText.getText())) {
@@ -51,8 +52,22 @@ public class ParcelaEdit extends AppCompatActivity {
             } else {
                 replyIntent.putExtra(ParcelaEdit.PARCELA_NOMBRE, mNombreText.getText().toString());
                 replyIntent.putExtra(ParcelaEdit.PARCELA_DESCRIPCION, mDescripcionText.getText().toString());
-                replyIntent.putExtra(ParcelaEdit.PARCELA_MAX_OCUPANTES, mMaxOcupantesText.getText().toString());
-                replyIntent.putExtra(ParcelaEdit.PARCELA_PRECIO_P_PERSONA, mPrecioPorPersonaText.getText().toString());
+                // Convertir mMaxOcupantesText a un entero
+                try {
+                    int maxOcupantes = Integer.parseInt(mMaxOcupantesText.getText().toString());
+                    replyIntent.putExtra(ParcelaEdit.PARCELA_MAX_OCUPANTES, maxOcupantes);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getApplicationContext(), "Número de ocupantes inválido", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                // Convertir mPrecioPorPersonaText a un decimal
+                try {
+                    float precioPorPersona = Float.parseFloat(mPrecioPorPersonaText.getText().toString());
+                    replyIntent.putExtra(ParcelaEdit.PARCELA_PRECIO_P_PERSONA, precioPorPersona);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getApplicationContext(), "Precio por persona inválido", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 if (mRowId!=null) {
                     replyIntent.putExtra(ParcelaEdit.PARCELA_ID, mRowId.intValue());
                 }

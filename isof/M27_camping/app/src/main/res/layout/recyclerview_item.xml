@@ -2,29 +2,54 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/grisClaro"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/textView"
         style="@style/word_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/grisClaro" />
+        android:layout_height="wrap_content" />
     <!-- Número de Ocupantes -->
+
+    <!-- Precio por Persona -->
     <TextView
         android:id="@+id/parcela_occupants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nº Ocupantes: X"
-        android:textSize="14sp"
         android:paddingTop="4dp"
-        android:paddingBottom="4dp"/>
+        android:paddingBottom="4dp"
+        android:textSize="14sp" />
 
-    <!-- Precio por Persona -->
     <TextView
         android:id="@+id/parcela_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Precio/Persona: Y€"
         android:textSize="14sp" />
+
+    <!-- Contenedor horizontal para iconos de editar y eliminar -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:paddingTop="8dp">
+
+        <!-- Botón para editar (ícono de lápiz) -->
+        <ImageView
+            android:id="@+id/edit_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:src="@drawable/ic_edit" />
+
+        <!-- Botón para eliminar (ícono de papelera) -->
+        <ImageView
+            android:id="@+id/delete_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:src="@drawable/ic_delete" />
+    </LinearLayout>
 </LinearLayout>

@@ -11,6 +11,25 @@ import es.unizar.eina.M27_camping.database.Parcela;
 
 public class ParcelaListAdapter extends ListAdapter<Parcela, ParcelaViewHolder> {
     private int position;
+    private OnEditClickListener editClickListener;
+    private OnDeleteClickListener deleteClickListener;
+
+    // Define interfaces para clics de editar y eliminar
+    public interface OnEditClickListener {
+        void onEditClick(Parcela parcela);
+    }
+
+    public interface OnDeleteClickListener {
+        void onDeleteClick(Parcela parcela);
+    }
+
+    public void setOnEditClickListener(OnEditClickListener listener) {
+        this.editClickListener = listener;
+    }
+
+    public void setOnDeleteClickListener(OnDeleteClickListener listener) {
+        this.deleteClickListener = listener;
+    }
 
     public int getPosition() {
         return position;
@@ -26,7 +45,7 @@ public class ParcelaListAdapter extends ListAdapter<Parcela, ParcelaViewHolder> 
 
     @Override
     public ParcelaViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return ParcelaViewHolder.create(parent);
+        return ParcelaViewHolder.create(parent, editClickListener, deleteClickListener);
     }
 
     public Parcela getCurrent() {
@@ -37,7 +56,7 @@ public class ParcelaListAdapter extends ListAdapter<Parcela, ParcelaViewHolder> 
     public void onBindViewHolder(ParcelaViewHolder holder, int position) {
 
         Parcela current = getItem(position);
-        holder.bind(current.getNombre());
+        holder.bind(current);
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
