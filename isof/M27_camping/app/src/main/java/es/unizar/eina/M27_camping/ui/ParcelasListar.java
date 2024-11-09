@@ -3,6 +3,7 @@ package es.unizar.eina.M27_camping.ui;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,7 +12,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
+
+import android.view.View;
+import android.widget.Spinner;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -20,6 +26,8 @@ import es.unizar.eina.M27_camping.R;
 
 import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 
+import java.util.List;
+
 /** Pantalla principal de la aplicación ParcelApp */
 public class ParcelasListar extends AppCompatActivity {
     private ParcelaViewModel mParcelaViewModel;
@@ -27,6 +35,12 @@ public class ParcelasListar extends AppCompatActivity {
     static final int INSERT_ID = Menu.FIRST;
     static final int DELETE_ID = Menu.FIRST + 1;
     static final int EDIT_ID = Menu.FIRST + 2;
+
+    private LiveData<List<Parcela>> mParcelasOrdenadasPorNombre;
+    private LiveData<List<Parcela>> mParcelasOrdenadasPorPrecio;
+    private LiveData<List<Parcela>> mParcelasOrdenadasPorOcupantes;
+
+    private LiveData<List<Parcela>> currentLiveData;
 
     RecyclerView mRecyclerView;
 
@@ -38,6 +52,7 @@ public class ParcelasListar extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parcelaslistar);
+
         mRecyclerView = findViewById(R.id.recyclerview);
         mAdapter = new ParcelaListAdapter(new ParcelaListAdapter.ParcelaDiff());
         mRecyclerView.setAdapter(mAdapter);
@@ -45,10 +60,55 @@ public class ParcelasListar extends AppCompatActivity {
 
         mParcelaViewModel = new ViewModelProvider(this).get(ParcelaViewModel.class);
 
-        mParcelaViewModel.getAllParcelas().observe(this, parcelas -> {
+        mParcelasOrdenadasPorNombre = mParcelaViewModel.getParcelasPorNombre();
+        mParcelasOrdenadasPorOcupantes = mParcelaViewModel.getParcelasPorOcupantes();
+        mParcelasOrdenadasPorPrecio = mParcelaViewModel.getParcelasPorPrecio();
+
+
+        /**mParcelaViewModel.getAllParcelas().observe(this, parcelas -> {
             // Update the cached copy of the notes in the adapter.
             mAdapter.submitList(parcelas);
+        });*/
+
+        // Variables y acciones para el spinner
+        Spinner spinnerOrden = findViewById(R.id.spinner);
+
+        String[] opcionesSpinner = {"Nombre", "Ocupantes", "Precio"};
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opcionesSpinner);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerOrden.setAdapter(adapter);
+
+        spinnerOrden.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (currentLiveData != null) {
+                    currentLiveData.removeObservers(ParcelasListar.this);
+                }
+
+                switch (position) {
+                    case 0: // Ordenar por Nombre
+                        currentLiveData = mParcelasOrdenadasPorNombre;
+                        break;
+                    case 2: // Ordenar por Ocupantes
+                        currentLiveData = mParcelasOrdenadasPorOcupantes;
+                        break;
+                    case 1: // Ordenar por Precio
+                        currentLiveData = mParcelasOrdenadasPorPrecio;
+                        break;
+                }
+
+                currentLiveData.observe(ParcelasListar.this, parcelas -> {
+                    mAdapter.submitList(parcelas);
+                });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // No hacer nada si no se selecciona nada
+            }
         });
+
 
         mFab = findViewById(R.id.fab);
         mFab.setOnClickListener(view -> createParela());
@@ -119,14 +179,14 @@ public class ParcelasListar extends AppCompatActivity {
         mStartCreateNote.launch(new Intent(this, ParcelaEdit.class));
     }
 
-    ActivityResultLauncher<Intent> mStartCreateNote = newActivityResultLauncher(new ExecuteActivityResult() {
+    ActivityResultLauncher<Intent> mStartCreateNote = newActivityResultLauncher(new ExecuteActivityResultParcelas() {
         @Override
         public void process(Bundle extras, Parcela parcela) {
             mParcelaViewModel.insert(parcela);
         }
     });
 
-    ActivityResultLauncher<Intent> newActivityResultLauncher(ExecuteActivityResult executable) {
+    ActivityResultLauncher<Intent> newActivityResultLauncher(ExecuteActivityResultParcelas executable) {
         return registerForActivityResult(
                 new StartActivityForResult(),
                 result -> {
@@ -151,7 +211,7 @@ public class ParcelasListar extends AppCompatActivity {
         mStartUpdateParcela.launch(intent);
     }
 
-    ActivityResultLauncher<Intent> mStartUpdateParcela = newActivityResultLauncher(new ExecuteActivityResult() {
+    ActivityResultLauncher<Intent> mStartUpdateParcela = newActivityResultLauncher(new ExecuteActivityResultParcelas() {
         @Override
         public void process(Bundle extras, Parcela parcela) {
             int id = extras.getInt(ParcelaEdit.PARCELA_ID);
@@ -162,6 +222,6 @@ public class ParcelasListar extends AppCompatActivity {
 
 }
 
-interface ExecuteActivityResult {
+interface ExecuteActivityResultParcelas {
     void process(Bundle extras, Parcela parcela);
 }

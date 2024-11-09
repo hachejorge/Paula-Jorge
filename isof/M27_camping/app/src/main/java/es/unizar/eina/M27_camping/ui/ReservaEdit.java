@@ -49,6 +49,7 @@ public class ReservaEdit extends AppCompatActivity {
                 setResult(RESULT_CANCELED, replyIntent);
                 Toast.makeText(getApplicationContext(), R.string.empty_not_saved, Toast.LENGTH_LONG).show();
             } else {
+                
                 replyIntent.putExtra(ReservaEdit.RESERVA_NOMCLIENTE, mNomClienteText.getText().toString());
                 replyIntent.putExtra(ReservaEdit.RESERVA_TLFCLIENTE, mTlfClienteText.getText().toString());
                 replyIntent.putExtra(ReservaEdit.RESERVA_FECHAENTRADA, mFechaEntradaText.getText().toString());

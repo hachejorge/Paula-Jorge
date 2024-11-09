@@ -18,6 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import es.unizar.eina.M27_camping.R;
 import es.unizar.eina.M27_camping.database.Reserva;
+import es.unizar.eina.M27_camping.ui.ReservaEdit;
 
 /** Pantalla principal de la aplicación Notepad */
 public class ReservasListar extends AppCompatActivity {
@@ -94,14 +95,14 @@ public class ReservasListar extends AppCompatActivity {
         mStartCreateReserva.launch(new Intent(this, ReservaEdit.class));
     }
 
-    ActivityResultLauncher<Intent> mStartCreateReserva = newActivityResultLauncher(new ExecuteActivityResult() {
+    ActivityResultLauncher<Intent> mStartCreateReserva = newActivityResultLauncher(new ExecuteActivityResultReservas() {
         @Override
         public void process(Bundle extras, Reserva reserva) {
             mReservaViewModel.insert(reserva);
         }
     });
 
-    ActivityResultLauncher<Intent> newActivityResultLauncher(ExecuteActivityResult executable) {
+    ActivityResultLauncher<Intent> newActivityResultLauncher(ExecuteActivityResultReservas executable) {
         return registerForActivityResult(
                 new StartActivityForResult(),
                 result -> {
@@ -116,7 +117,7 @@ public class ReservasListar extends AppCompatActivity {
                 });
     }
 
-    private void reservaEditEdit(Reserva current) {
+    private void reservaEdit(Reserva current) {
         Intent intent = new Intent(this, ReservaEdit.class);
         intent.putExtra(ReservaEdit.RESERVA_NOMCLIENTE, current.getNomCliente());
         intent.putExtra(ReservaEdit.RESERVA_TLFCLIENTE, current.getTlfCliente());
@@ -126,7 +127,7 @@ public class ReservasListar extends AppCompatActivity {
         mStartUpdateReserva.launch(intent);
     }
 
-    ActivityResultLauncher<Intent> mStartUpdateReserva = newActivityResultLauncher(new ExecuteActivityResult() {
+    ActivityResultLauncher<Intent> mStartUpdateReserva = newActivityResultLauncher(new ExecuteActivityResultReservas() {
         @Override
         public void process(Bundle extras, Reserva reserva) {
             int id = extras.getInt(ReservaEdit.RESERVA_ID);
@@ -137,6 +138,6 @@ public class ReservasListar extends AppCompatActivity {
 
 }
 
-interface ExecuteActivityResult {
+interface ExecuteActivityResultReservas {
     void process(Bundle extras, Reserva reserva);
 }

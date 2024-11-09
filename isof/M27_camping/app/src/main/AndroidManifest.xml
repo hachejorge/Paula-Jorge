@@ -17,8 +17,14 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize">
         </activity>
+
         <activity
             android:name=".ui.ParcelasListar"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+        <activity
+            android:name=".ui.Inicio"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

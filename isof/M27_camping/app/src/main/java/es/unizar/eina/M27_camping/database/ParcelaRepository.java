@@ -19,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 public class ParcelaRepository {
 
     private final ParcelaDao mParcelaDao;
-    private final LiveData<List<Parcela>> mAllParcelas;
+    //private final LiveData<List<Parcela>> mAllParcelas;
 
     private final long TIMEOUT = 15000;
 
@@ -32,15 +32,31 @@ public class ParcelaRepository {
     public ParcelaRepository(Application application) {
         CampingRoomDatabase db = CampingRoomDatabase.getDatabase(application);
         mParcelaDao = db.parcelaDao();
-        mAllParcelas = mParcelaDao.getOrderedParcelas();
+        //mAllParcelas = mParcelaDao.getOrderedParcelas();
     }
 
-    /** Devuelve un objeto de tipo LiveData con todas las parcelas.
+    /** Devuelve un objeto de tipo LiveData con todas las parcelas ordenadas por Nombre.
      * Room ejecuta todas las consultas en un hilo separado.
      * El objeto LiveData notifica a los observadores cuando los datos cambian.
      */
-    public LiveData<List<Parcela>> getAllParcelas() {
-        return mAllParcelas;
+    public LiveData<List<Parcela>> getAllParcelasPorNombre() {
+        return mParcelaDao.getOrderedParcelasByNombre();
+    }
+
+    /** Devuelve un objeto de tipo LiveData con todas las parcelas ordenadas por Número de ocupantes máximos.
+     * Room ejecuta todas las consultas en un hilo separado.
+     * El objeto LiveData notifica a los observadores cuando los datos cambian.
+     */
+    public LiveData<List<Parcela>> getAllParcelasPorOcupantes() {
+        return mParcelaDao.getOrderedParcelasByOcupantes();
+    }
+
+    /** Devuelve un objeto de tipo LiveData con todas las parcelas ordenadas por precio por persona.
+     * Room ejecuta todas las consultas en un hilo separado.
+     * El objeto LiveData notifica a los observadores cuando los datos cambian.
+     */
+    public LiveData<List<Parcela>> getAllParcelasPorPrecio() {
+        return mParcelaDao.getOrderedParcelasByPrecio();
     }
 
     /** Inserta una parcela nueva en la base de datos

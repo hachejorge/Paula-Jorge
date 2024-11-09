@@ -19,10 +19,21 @@ public class ParcelaViewModel extends AndroidViewModel {
     public ParcelaViewModel(Application application) {
         super(application);
         mRepository = new ParcelaRepository(application);
-        mAllParcelas = mRepository.getAllParcelas();
+        mAllParcelas = mRepository.getAllParcelasPorNombre();
     }
 
-    LiveData<List<Parcela>> getAllParcelas() { return mAllParcelas; }
+    public LiveData<List<Parcela>> getParcelasPorNombre() {
+        return mRepository.getAllParcelasPorNombre();
+    }
+
+    public LiveData<List<Parcela>> getParcelasPorPrecio() {
+        return mRepository.getAllParcelasPorOcupantes();
+    }
+
+    public LiveData<List<Parcela>> getParcelasPorOcupantes() {
+        return mRepository.getAllParcelasPorPrecio();
+    }
+
 
     public void insert(Parcela parcela) { mRepository.insert(parcela); }
 

@@ -11,6 +11,7 @@
     <string name="descripcion">Descripción</string>
     <string name="maxOcupantes">Número máximo de ocupantes</string>
     <string name="precioPorPersona">Precio por persona</string>
+    <string name="orden_parcelas">Ordenar por:</string>
     <string name="nomCliente">Nombre del cliente</string>
     <string name="tlfCliente">Teléfono del cliente</string>
     <string name="fEntrada">Fecha de entrada</string>
@@ -19,5 +20,4 @@
     <string name="hint_tlfCliente">Teléfono...</string>
     <string name="button_save_reserva">Guardar Reserva</string>
     <string name="add_reserva">Añadir Reserva</string>
-
 </resources>

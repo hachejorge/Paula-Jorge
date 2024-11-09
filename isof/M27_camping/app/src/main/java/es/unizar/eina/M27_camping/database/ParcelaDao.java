@@ -27,6 +27,12 @@ public interface ParcelaDao {
     void deleteAll();
 
     @Query("SELECT * FROM parcela ORDER BY nombre ASC")
-    LiveData<List<Parcela>> getOrderedParcelas();
+    LiveData<List<Parcela>> getOrderedParcelasByNombre();
+
+    @Query("SELECT * FROM parcela ORDER BY maxOcupantes ASC")
+    LiveData<List<Parcela>> getOrderedParcelasByOcupantes();
+
+    @Query("SELECT * FROM parcela ORDER BY precioPorPersona ASC")
+    LiveData<List<Parcela>> getOrderedParcelasByPrecio();
 }
 

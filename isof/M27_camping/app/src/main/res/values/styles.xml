@@ -1,12 +1,11 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/orange</item>
         <item name="colorPrimaryDark">@color/orange</item>
         <item name="colorAccent">@color/colorAccent</item>
-
     </style>
 
     <!-- The default font for RecyclerView items is too small.

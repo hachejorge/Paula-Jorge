@@ -27,7 +27,7 @@ class ReservaViewHolder extends RecyclerView.ViewHolder implements View.OnCreate
 
     static ReservaViewHolder create(ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recyclerviewReserva_item, parent, false);
+                .inflate(R.layout.recyclerview_reserva, parent, false);
         return new ReservaViewHolder(view);
     }
 
