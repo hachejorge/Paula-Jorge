@@ -1,0 +1,22 @@
+<!-- res/drawable/edittext_background.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Estado seleccionado o enfocado -->
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white" /> <!-- Fondo blanco -->
+            <stroke android:width="2dp" android:color="@color/orange" /> <!-- Color del borde al seleccionar -->
+            <corners android:radius="8dp" /> <!-- Bordes redondeados opcionales -->
+        </shape>
+    </item>
+
+    <!-- Estado por defecto (no enfocado) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white" /> <!-- Fondo blanco -->
+            <stroke android:width="1dp" android:color="@color/gray" /> <!-- Color del borde por defecto -->
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+
+</selector>

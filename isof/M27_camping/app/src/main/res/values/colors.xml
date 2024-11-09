@@ -8,4 +8,5 @@
     <color name="buttonLabel">#FFFFFF</color>
     <color name="orange">#FF9700</color>
     <color name="grisClaro">#dadada</color>
+    <color name="gray">#818181</color> <!-- Color del borde por defecto -->
 </resources>

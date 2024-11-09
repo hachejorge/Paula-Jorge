@@ -86,8 +86,13 @@ public class ParcelaEdit extends AppCompatActivity {
         if (extras!=null) {
             mNombreText.setText(extras.getString(ParcelaEdit.PARCELA_NOMBRE));
             mDescripcionText.setText(extras.getString(ParcelaEdit.PARCELA_DESCRIPCION));
-            mMaxOcupantesText.setText(extras.getString(ParcelaEdit.PARCELA_MAX_OCUPANTES));
-            mPrecioPorPersonaText.setText(extras.getString(ParcelaEdit.PARCELA_PRECIO_P_PERSONA));
+
+            int maxOcupantes = extras.getInt(ParcelaEdit.PARCELA_MAX_OCUPANTES, 0);
+            mMaxOcupantesText.setText(String.valueOf(maxOcupantes));
+
+            float precioPorPersona = extras.getFloat(ParcelaEdit.PARCELA_PRECIO_P_PERSONA, 0.0f);
+            mPrecioPorPersonaText.setText(String.valueOf(precioPorPersona));
+
             mRowId = extras.getInt(ParcelaEdit.PARCELA_ID);
         }
     }

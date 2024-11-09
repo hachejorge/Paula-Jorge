@@ -1,6 +1,7 @@
 package es.unizar.eina.M27_camping.ui;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,7 +20,7 @@ import es.unizar.eina.M27_camping.R;
 
 import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 
-/** Pantalla principal de la aplicación Notepad */
+/** Pantalla principal de la aplicación ParcelApp */
 public class ParcelasListar extends AppCompatActivity {
     private ParcelaViewModel mParcelaViewModel;
 
@@ -55,14 +56,26 @@ public class ParcelasListar extends AppCompatActivity {
         // Asigna el listener para editar
         mAdapter.setOnEditClickListener(parcela -> parelaEdit(parcela));
 
-        // Configurar el listener para el botón de eliminar
         mAdapter.setOnDeleteClickListener(parcela -> {
-            Toast.makeText(
-                    getApplicationContext(),
-                    "Borrando " + parcela.getNombre(),
-                    Toast.LENGTH_LONG).show();
-            mParcelaViewModel.delete(parcela);
+            // Crear un diálogo de alerta para confirmar la eliminación
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirmar eliminación")
+                    .setMessage("¿Estás seguro de que quieres eliminar " + parcela.getNombre() + "?")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        // Eliminar la parcela si el usuario confirma
+                        Toast.makeText(
+                                getApplicationContext(),
+                                "Borrando " + parcela.getNombre(),
+                                Toast.LENGTH_LONG).show();
+                        mParcelaViewModel.delete(parcela);
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // Cancelar la eliminación
+                        dialog.dismiss();
+                    })
+                    .show();
         });
+
 
         // It doesn't affect if we comment the following instruction
         // registerForContextMenu(mRecyclerView);
