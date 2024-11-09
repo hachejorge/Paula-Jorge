@@ -11,7 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Parcela.class}, version = 1, exportSchema = false)
+@Database(entities = {Parcela.class, Reserva.class}, version = 1, exportSchema = false)
 public abstract class CampingRoomDatabase extends RoomDatabase {
 
     public abstract ParcelaDao parcelaDao();
