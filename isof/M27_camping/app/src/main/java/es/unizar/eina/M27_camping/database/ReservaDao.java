@@ -27,6 +27,12 @@ public interface ReservaDao {
     void deleteAll();
 
     @Query("SELECT * FROM reserva ORDER BY nomCliente ASC")
-    LiveData<List<Reserva>> getOrderedReservas();
+    LiveData<List<Reserva>> getOrderedReservasPorCliente();
+
+    @Query("SELECT * FROM reserva ORDER BY tlfCliente ASC")
+    LiveData<List<Reserva>> getOrderedReservasPorTlf();
+
+    @Query("SELECT * FROM reserva ORDER BY fechaEntrada ASC")
+    LiveData<List<Reserva>> getOrderedReservasPorFechaEntrada();
 }
 

@@ -8,6 +8,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import es.unizar.eina.M27_camping.R;
 
+/**
+ * Pantalla inicial de la aplicación ParcelApp
+ * En ella te permite acceder a ĺos listados de parcelas y reservas
+ * */
 public class Inicio extends AppCompatActivity {
 
     @Override

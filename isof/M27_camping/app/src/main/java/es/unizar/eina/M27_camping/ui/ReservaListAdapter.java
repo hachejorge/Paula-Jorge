@@ -7,10 +7,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
+import es.unizar.eina.M27_camping.database.Parcela;
 import es.unizar.eina.M27_camping.database.Reserva;
 
 public class ReservaListAdapter extends ListAdapter<Reserva, ReservaViewHolder> {
     private int position;
+    private ReservaListAdapter.OnEditClickListener editClickListener;
+    private ReservaListAdapter.OnDeleteClickListener deleteClickListener;
 
     public int getPosition() {
         return position;
@@ -24,9 +27,26 @@ public class ReservaListAdapter extends ListAdapter<Reserva, ReservaViewHolder> 
         super(diffCallback);
     }
 
+    // Define interfaces para clics de editar y eliminar
+    public interface OnEditClickListener {
+        void onEditClick(Reserva reserva);
+    }
+
+    public interface OnDeleteClickListener {
+        void onDeleteClick(Reserva reserva);
+    }
+
+    public void setOnEditClickListener(ReservaListAdapter.OnEditClickListener listener) {
+        this.editClickListener = listener;
+    }
+
+    public void setOnDeleteClickListener(ReservaListAdapter.OnDeleteClickListener listener) {
+        this.deleteClickListener = listener;
+    }
+
     @Override
     public ReservaViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return ReservaViewHolder.create(parent);
+        return ReservaViewHolder.create(parent, this.editClickListener, this.deleteClickListener);
     }
 
     public Reserva getCurrent() {

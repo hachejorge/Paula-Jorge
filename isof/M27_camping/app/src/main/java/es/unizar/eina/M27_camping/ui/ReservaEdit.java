@@ -17,7 +17,7 @@ public class ReservaEdit extends AppCompatActivity {
     public static final String RESERVA_NOMCLIENTE = "nomCliente";
     public static final String RESERVA_TLFCLIENTE = "tlfCliente";
     public static final String RESERVA_FECHAENTRADA = "fechaEntrada";
-    public static final String RESERVA_FECHASALIDA = "fechaEntrada";
+    public static final String RESERVA_FECHASALIDA = "fechaSalida";
     public static final String RESERVA_ID = "idReserva";
 
     private EditText mNomClienteText;
@@ -51,9 +51,18 @@ public class ReservaEdit extends AppCompatActivity {
             } else {
                 
                 replyIntent.putExtra(ReservaEdit.RESERVA_NOMCLIENTE, mNomClienteText.getText().toString());
-                replyIntent.putExtra(ReservaEdit.RESERVA_TLFCLIENTE, mTlfClienteText.getText().toString());
                 replyIntent.putExtra(ReservaEdit.RESERVA_FECHAENTRADA, mFechaEntradaText.getText().toString());
                 replyIntent.putExtra(ReservaEdit.RESERVA_FECHASALIDA, mFechaSalidaText.getText().toString());
+
+                // Convertir Telefono a un entero
+                try {
+                    int numTlf = Integer.parseInt(mTlfClienteText.getText().toString());
+                    replyIntent.putExtra(ReservaEdit.RESERVA_TLFCLIENTE, numTlf);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getApplicationContext(), "Número de teléfono inválido", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 if (mRowId!=null) {
                     replyIntent.putExtra(ReservaEdit.RESERVA_ID, mRowId.intValue());
                 }
@@ -71,7 +80,10 @@ public class ReservaEdit extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras!=null) {
             mNomClienteText.setText(extras.getString(ReservaEdit.RESERVA_NOMCLIENTE));
-            mTlfClienteText.setText(extras.getString(ReservaEdit.RESERVA_TLFCLIENTE));
+
+            int tlf = extras.getInt(ReservaEdit.RESERVA_TLFCLIENTE, 0);
+            mTlfClienteText.setText(String.valueOf(tlf));
+
             mFechaEntradaText.setText(extras.getString(ReservaEdit.RESERVA_FECHAENTRADA));
             mFechaSalidaText.setText(extras.getString(ReservaEdit.RESERVA_FECHASALIDA));
             mRowId = extras.getInt(ReservaEdit.RESERVA_ID);

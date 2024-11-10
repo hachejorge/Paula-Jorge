@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.text.ParseException;
 import java.util.Date;
 
-/** Clase aparcelada como entidad que representa una reserva */
+/** Clase Reserva como entidad que representa una reserva formada por un nombre del cliente, un teléfono y una fecha de entrada y de salida */
 @Entity(tableName = "reserva")
 public class Reserva {
     @PrimaryKey(autoGenerate = true)

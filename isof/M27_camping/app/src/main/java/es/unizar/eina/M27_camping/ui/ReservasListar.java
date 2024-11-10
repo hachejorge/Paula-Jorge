@@ -6,27 +6,46 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
+import android.util.Log;
+
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.List;
+
 import es.unizar.eina.M27_camping.R;
+import es.unizar.eina.M27_camping.database.Parcela;
 import es.unizar.eina.M27_camping.database.Reserva;
 import es.unizar.eina.M27_camping.ui.ReservaEdit;
 
-/** Pantalla principal de la aplicación Notepad */
+/** Pantalla en la que se muestra el listado de reservas
+ *  Desde ella se pueden añadir, modificar o eliminar cualquiera de ellas. También permite ordenarlas.
+ * */
 public class ReservasListar extends AppCompatActivity {
     private ReservaViewModel mReservaViewModel;
 
     static final int INSERT_ID = Menu.FIRST;
     static final int DELETE_ID = Menu.FIRST + 1;
     static final int EDIT_ID = Menu.FIRST + 2;
+
+    private LiveData<List<Reserva>> mReservasOrdenadasPorNombre;
+    private LiveData<List<Reserva>> mReservasOrdenadasPorTlf;
+    private LiveData<List<Reserva>> mReservasOrdenadasPorFechaEntrada;
+
+    private LiveData<List<Reserva>> currentLiveData;
 
     RecyclerView mRecyclerView;
 
@@ -45,13 +64,87 @@ public class ReservasListar extends AppCompatActivity {
 
         mReservaViewModel = new ViewModelProvider(this).get(ReservaViewModel.class);
 
-        mReservaViewModel.getAllReservas().observe(this, reservas -> {
+        mReservasOrdenadasPorNombre = mReservaViewModel.getAllReservasPorCliente();
+        mReservasOrdenadasPorTlf = mReservaViewModel.getAllReservasPorTlf();
+        mReservasOrdenadasPorFechaEntrada = mReservaViewModel.getAllReservasPorFEntrada();
+
+        /**mReservaViewModel.getAllReservasPorCliente().observe(this, reservas -> {
+            if (reservas != null && !reservas.isEmpty()) {
+                Log.d("ReservasListar", "Datos cargados correctamente: " + reservas.size());
+                for (Reserva reserva : reservas) {
+                    Log.d("ReservasListar", "Reserva: " + reserva.getNomCliente() + " - Número de tlf: " + reserva.getTlfCliente());
+                }
+            } else {
+                Log.d("ReservasListar", "No se encontraron reservas en la base de datos.");
+            }
             // Update the cached copy of the notes in the adapter.
             mAdapter.submitList(reservas);
-        });
+        });*/
 
         mFab = findViewById(R.id.fab);
         mFab.setOnClickListener(view -> createReserva());
+
+        // Variables y acciones para el spinner
+        Spinner spinnerOrden = findViewById(R.id.spinner);
+
+        String[] opcionesSpinner = {"Nombre", "Teléfono", "Fecha Entrada"};
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opcionesSpinner);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerOrden.setAdapter(adapter);
+
+        spinnerOrden.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (currentLiveData != null) {
+                    currentLiveData.removeObservers(ReservasListar.this);
+                }
+
+                switch (position) {
+                    case 0: // Ordenar por Nombre
+                        currentLiveData = mReservasOrdenadasPorNombre;
+                        break;
+                    case 2: // Ordenar por Ocupantes
+                        currentLiveData = mReservasOrdenadasPorTlf;
+                        break;
+                    case 1: // Ordenar por Precio
+                        currentLiveData = mReservasOrdenadasPorFechaEntrada;
+                        break;
+                }
+
+                currentLiveData.observe(ReservasListar.this, reservas -> {
+                    mAdapter.submitList(reservas);
+                });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // No hacer nada si no se selecciona nada
+            }
+        });
+
+        // Asigna el listener para editar
+        mAdapter.setOnEditClickListener(reserva -> reservaEdit(reserva));
+
+        mAdapter.setOnDeleteClickListener(reserva -> {
+            // Crear un diálogo de alerta para confirmar la eliminación
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirmar eliminación")
+                    .setMessage("¿Estás seguro de que quieres eliminar la reserva #" + reserva.getIdReserva() + "?")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        // Eliminar la parcela si el usuario confirma
+                        Toast.makeText(
+                                getApplicationContext(),
+                                "Borrando Reserva #" + reserva.getIdReserva(),
+                                Toast.LENGTH_LONG).show();
+                        mReservaViewModel.delete(reserva);
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // Cancelar la eliminación
+                        dialog.dismiss();
+                    })
+                    .show();
+        });
 
         // It doesn't affect if we comment the following instruction
         registerForContextMenu(mRecyclerView);

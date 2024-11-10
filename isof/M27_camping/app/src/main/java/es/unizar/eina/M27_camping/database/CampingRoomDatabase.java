@@ -11,6 +11,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ *   Clase que crea la base de datos de la aplicación ParcelAPP
+ *   Principalmente compuesta por parcelas y reservas
+ **/
 @Database(entities = {Parcela.class, Reserva.class}, version = 2, exportSchema = false)
 public abstract class CampingRoomDatabase extends RoomDatabase {
 

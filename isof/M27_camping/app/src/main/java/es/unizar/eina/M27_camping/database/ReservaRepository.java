@@ -13,13 +13,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Clase que gestiona el acceso la fuente de datos.
+ * Clase que gestiona el acceso la fuente de datos de las reservas.
  * Interacciona con la base de datos a través de las clases CampingRoomDatabase y ReservaDao.
  */
 public class ReservaRepository {
 
     private final ReservaDao mReservaDao;
-    private final LiveData<List<Reserva>> mAllReservas;
+    //private final LiveData<List<Reserva>> mAllReservas;
 
     private final long TIMEOUT = 15000;
 
@@ -32,16 +32,34 @@ public class ReservaRepository {
     public ReservaRepository(Application application) {
         CampingRoomDatabase db = CampingRoomDatabase.getDatabase(application);
         mReservaDao = db.reservaDao();
-        mAllReservas = mReservaDao.getOrderedReservas();
+        //mAllReservas = mReservaDao.getOrderedReservasPorCliente();
     }
 
-    /** Devuelve un objeto de tipo LiveData con todas las reservas.
+    /** Devuelve un objeto de tipo LiveData con todas las reservas ordenadas por Nombre del cliente.
      * Room ejecuta todas las consultas en un hilo separado.
      * El objeto LiveData notifica a los observadores cuando los datos cambian.
      */
-    public LiveData<List<Reserva>> getAllReservas() {
-        return mAllReservas;
+    public LiveData<List<Reserva>> getAllReservasPorCliente() {
+        return mReservaDao.getOrderedReservasPorCliente();
     }
+
+    /** Devuelve un objeto de tipo LiveData con todas las reservas ordenadas por número de teléfono.
+     * Room ejecuta todas las consultas en un hilo separado.
+     * El objeto LiveData notifica a los observadores cuando los datos cambian.
+     */
+    public LiveData<List<Reserva>> getAllReservasPorTlf() {
+        return mReservaDao.getOrderedReservasPorTlf();
+    }
+
+
+    /** Devuelve un objeto de tipo LiveData con todas las reservas ordenadas por la fecha de entrada.
+     * Room ejecuta todas las consultas en un hilo separado.
+     * El objeto LiveData notifica a los observadores cuando los datos cambian.
+     */
+    public LiveData<List<Reserva>> getAllReservasPorFEntrada() {
+        return mReservaDao.getOrderedReservasPorFechaEntrada();
+    }
+
 
     /** Inserta una reserva nueva en la base de datos
      * @param reserva La reserva consta de: un nomCliente (reserva.getNomCliente()) no nulo (reserva.getNomCliente()!=null)

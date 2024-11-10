@@ -28,7 +28,9 @@ import static androidx.activity.result.contract.ActivityResultContracts.StartAct
 
 import java.util.List;
 
-/** Pantalla principal de la aplicación ParcelApp */
+/** Pantalla en la que se muestra el listado de parcelas
+ *  Desde ella se pueden añadir, modificar o eliminar cualquiera de ellas. También permite ordenarlas.
+ * */
 public class ParcelasListar extends AppCompatActivity {
     private ParcelaViewModel mParcelaViewModel;
 

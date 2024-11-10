@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Clase que gestiona el acceso la fuente de datos.
+ * Clase que gestiona el acceso la fuente de datos de las parcelas.
  * Interacciona con la base de datos a través de las clases CampingRoomDatabase y ParcelaDao.
  */
 public class ParcelaRepository {

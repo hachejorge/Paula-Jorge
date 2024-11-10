@@ -14,59 +14,64 @@ import es.unizar.eina.M27_camping.R;
 import es.unizar.eina.M27_camping.database.Reserva;
 
 class ReservaViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+    private final TextView mReservaID;
     private final TextView mReservaNombre;
     private final TextView mReservaTlf;
     private final TextView mReservaFechaEntrada;
     private final TextView mReservaFechaSalida;
-    private final TextView mReservaPrecioTotal;
+    //private final TextView mReservaPrecioTotal;
 
     private final ImageView mEditIcon;
     private final ImageView mDeleteIcon;
 
-    //private ReservaListAdapter.OnEditClickListener editClickListener;
-    //private ReservaListAdapter.OnDeleteClickListener deleteClickListener;
+    private ReservaListAdapter.OnEditClickListener editClickListener;
+    private ReservaListAdapter.OnDeleteClickListener deleteClickListener;
 
-    private ReservaViewHolder(View itemView) {
+    private ReservaViewHolder(View itemView, ReservaListAdapter.OnEditClickListener editListener,
+                              ReservaListAdapter.OnDeleteClickListener deleteListener) {
         super(itemView);
 
+        mReservaID = itemView.findViewById(R.id.idReserva);
         mReservaNombre = itemView.findViewById(R.id.nomCliente);
         mReservaTlf = itemView.findViewById(R.id.tlfCliente);
         mReservaFechaEntrada = itemView.findViewById(R.id.fEntrada);
         mReservaFechaSalida = itemView.findViewById(R.id.fSalida);
-        mReservaPrecioTotal = itemView.findViewById(R.id.precioTotal);
+        //mReservaPrecioTotal = itemView.findViewById(R.id.precioTotal);
         mEditIcon = itemView.findViewById(R.id.edit_icon_reserva);
         mDeleteIcon = itemView.findViewById(R.id.delete_icon_reserva);
-        //this.editClickListener = editListener;
-        //this.deleteClickListener = deleteListener;
+        this.editClickListener = editListener;
+        this.deleteClickListener = deleteListener;
 
         itemView.setOnCreateContextMenuListener(this);
     }
 
     public void bind(Reserva reserva) {
+        mReservaID.setText("Id Reserva: #" + reserva.getIdReserva());
         mReservaNombre.setText(reserva.getNomCliente());
-        mReservaTlf.setText(reserva.getTlfCliente());
-        mReservaFechaEntrada.setText(reserva.getFechaEntrada());
-        mReservaFechaSalida.setText(reserva.getFechaSalida());
-        //mReservaPrecioTotal.setText(reserva.g);
+        mReservaTlf.setText("Nº Tlf: " + reserva.getTlfCliente());
+        mReservaFechaEntrada.setText("F. Entrada: " + reserva.getFechaEntrada());
+        mReservaFechaSalida.setText("F. Salida: " + reserva.getFechaSalida());
+        //mReservaPrecioTotal.setText(reserva.get);
 
-        /**mEditIcon.setOnClickListener(v -> {
+        mEditIcon.setOnClickListener(v -> {
             if (editClickListener != null) {
-                //editClickListener.onEditClick(reserva);
+                editClickListener.onEditClick(reserva);
             }
         });
 
         // Configurar evento de clic para eliminar
         mDeleteIcon.setOnClickListener(v -> {
             if (deleteClickListener != null) {
-                //deleteClickListener.onDeleteClick(reserva);
+                deleteClickListener.onDeleteClick(reserva);
             }
-        });*/
+        });
     }
 
-    static ReservaViewHolder create(ViewGroup parent) {
+    static ReservaViewHolder create(ViewGroup parent, ReservaListAdapter.OnEditClickListener editListener,
+                                    ReservaListAdapter.OnDeleteClickListener deleteListener) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recyclerview_reserva, parent, false);
-        return new ReservaViewHolder(view);
+        return new ReservaViewHolder(view, editListener, deleteListener);
     }
 
 

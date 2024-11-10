@@ -14,15 +14,19 @@ public class ReservaViewModel extends AndroidViewModel {
 
     private ReservaRepository mRepository;
 
-    private final LiveData<List<Reserva>> mAllReservas;
+    //private final LiveData<List<Reserva>> mAllReservas;
 
     public ReservaViewModel(Application application) {
         super(application);
         mRepository = new ReservaRepository(application);
-        mAllReservas = mRepository.getAllReservas();
+        //mAllReservas = mRepository.getAllReservas();
     }
 
-    LiveData<List<Reserva>> getAllReservas() { return mAllReservas; }
+    LiveData<List<Reserva>> getAllReservasPorCliente() { return mRepository.getAllReservasPorCliente(); }
+
+    LiveData<List<Reserva>> getAllReservasPorTlf() { return mRepository.getAllReservasPorTlf(); }
+
+    LiveData<List<Reserva>> getAllReservasPorFEntrada() { return mRepository.getAllReservasPorFEntrada(); }
 
     public void insert(Reserva reserva) { mRepository.insert(reserva); }
 

@@ -5,7 +5,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-/** Clase aparcelada como entidad que representa una parcela y que consta de título y cuerpo */
+/** Clase Parcela que representa una parcela y que consta de nombre, una descripción, un máximo de ocupantes y un precio por persona */
 @Entity(tableName = "parcela")
 public class Parcela {
     @PrimaryKey(autoGenerate = true)
