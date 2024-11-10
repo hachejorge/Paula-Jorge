@@ -5,24 +5,62 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import es.unizar.eina.M27_camping.R;
+import es.unizar.eina.M27_camping.database.Reserva;
 
 class ReservaViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
-    private final TextView mReservaItemView;
+    private final TextView mReservaNombre;
+    private final TextView mReservaTlf;
+    private final TextView mReservaFechaEntrada;
+    private final TextView mReservaFechaSalida;
+    private final TextView mReservaPrecioTotal;
+
+    private final ImageView mEditIcon;
+    private final ImageView mDeleteIcon;
+
+    //private ReservaListAdapter.OnEditClickListener editClickListener;
+    //private ReservaListAdapter.OnDeleteClickListener deleteClickListener;
 
     private ReservaViewHolder(View itemView) {
         super(itemView);
-        mReservaItemView = itemView.findViewById(R.id.textView);
+
+        mReservaNombre = itemView.findViewById(R.id.nomCliente);
+        mReservaTlf = itemView.findViewById(R.id.tlfCliente);
+        mReservaFechaEntrada = itemView.findViewById(R.id.fEntrada);
+        mReservaFechaSalida = itemView.findViewById(R.id.fSalida);
+        mReservaPrecioTotal = itemView.findViewById(R.id.precioTotal);
+        mEditIcon = itemView.findViewById(R.id.edit_icon_reserva);
+        mDeleteIcon = itemView.findViewById(R.id.delete_icon_reserva);
+        //this.editClickListener = editListener;
+        //this.deleteClickListener = deleteListener;
 
         itemView.setOnCreateContextMenuListener(this);
     }
 
-    public void bind(String text) {
-        mReservaItemView.setText(text);
+    public void bind(Reserva reserva) {
+        mReservaNombre.setText(reserva.getNomCliente());
+        mReservaTlf.setText(reserva.getTlfCliente());
+        mReservaFechaEntrada.setText(reserva.getFechaEntrada());
+        mReservaFechaSalida.setText(reserva.getFechaSalida());
+        //mReservaPrecioTotal.setText(reserva.g);
+
+        /**mEditIcon.setOnClickListener(v -> {
+            if (editClickListener != null) {
+                //editClickListener.onEditClick(reserva);
+            }
+        });
+
+        // Configurar evento de clic para eliminar
+        mDeleteIcon.setOnClickListener(v -> {
+            if (deleteClickListener != null) {
+                //deleteClickListener.onDeleteClick(reserva);
+            }
+        });*/
     }
 
     static ReservaViewHolder create(ViewGroup parent) {

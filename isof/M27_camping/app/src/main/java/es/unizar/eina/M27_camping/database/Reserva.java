@@ -5,6 +5,9 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.text.ParseException;
 import java.util.Date;
 
 /** Clase aparcelada como entidad que representa una reserva */
@@ -18,18 +21,21 @@ public class Reserva {
     @ColumnInfo(name = "nomCliente")
     private String nomCliente;
 
-    @ColumnInfo(name = "tflCliente")
-    private Integer tflCliente;
+    @ColumnInfo(name = "tlfCliente")
+    private Integer tlfCliente;
 
     @ColumnInfo(name = "fechaEntrada")
-    private Date fechaEntrada;
+    private String fechaEntrada;
 
     @ColumnInfo(name = "fechaSalida")
-    private Date fechaSalida;
+    private String fechaSalida;
 
-    public Reserva(@NonNull String nomCliente, Integer tflCliente, Date fechaEntrada, Date fechaSalida) {
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+
+    public Reserva(@NonNull String nomCliente, Integer tlfCliente, String fechaEntrada, String fechaSalida) {
         this.nomCliente = nomCliente;
-        this.tflCliente = tflCliente;
+        this.tlfCliente = tlfCliente;
         this.fechaEntrada = fechaEntrada;
         this.fechaSalida = fechaSalida;
     }
@@ -49,13 +55,37 @@ public class Reserva {
 
     /** Devuelve el telefono del cliente de la reserva */
     public Integer getTlfCliente(){
-        return this.tflCliente;
+        return this.tlfCliente;
     }
 
-    /** Devuelve la fecha de entrada de la reserva */
-    public Date getFechaEntrada() { return this.fechaEntrada; }
+    /** Devuelve la fecha de entrada como String */
+    public String getFechaEntrada(){
+        return this.fechaEntrada;
+    }
 
-    /** Devuelve la fecha de salida de la reserva */
-    public Date getFechaSalida() { return this.fechaSalida; }
+    /** Devuelve la fecha de salida como String */
+    public String getFechaSalida(){
+        return this.fechaSalida;
+    }
+
+    /** Devuelve la fecha de entrada como Date */
+    /**public Date getFechaEntrada() {
+        try {
+            return fechaEntrada != null ? dateFormat.parse(fechaEntrada) : null;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }*/
+
+    /** Devuelve la fecha de salida como Date */
+    /**public Date getFechaSalida() {
+        try {
+            return fechaSalida != null ? dateFormat.parse(fechaSalida) : null;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }*/
 
 }

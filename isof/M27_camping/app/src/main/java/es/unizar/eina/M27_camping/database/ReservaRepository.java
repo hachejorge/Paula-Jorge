@@ -2,7 +2,6 @@ package es.unizar.eina.M27_camping.database;
 
 
 import android.app.Application;
-import android.speech.RecognitionService;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;

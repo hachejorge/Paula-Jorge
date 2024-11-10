@@ -24,6 +24,17 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
+            android:name=".ui.ReservaEdit"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+
+        <activity
+            android:name=".ui.ReservasListar"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+        <activity
             android:name=".ui.Inicio"
             android:exported="true">
             <intent-filter>

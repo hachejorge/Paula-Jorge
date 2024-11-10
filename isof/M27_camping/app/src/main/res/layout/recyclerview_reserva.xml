@@ -74,7 +74,7 @@
 
         <!-- Botón para editar (ícono de lápiz) -->
         <ImageView
-            android:id="@+id/edit_icon"
+            android:id="@+id/edit_icon_reserva"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
@@ -82,7 +82,7 @@
 
         <!-- Botón para eliminar (ícono de papelera) -->
         <ImageView
-            android:id="@+id/delete_icon"
+            android:id="@+id/delete_icon_reserva"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"

@@ -39,8 +39,8 @@ public class ReservaEdit extends AppCompatActivity {
 
         mNomClienteText = findViewById(R.id.nomCliente);
         mTlfClienteText = findViewById(R.id.tlfCliente);
-        mFechaEntradaText = findViewById(R.id.fechaEntrada);
-        mFechaSalidaText = findViewById(R.id.fechaSalida);
+        mFechaEntradaText = findViewById(R.id.fEntrada);
+        mFechaSalidaText = findViewById(R.id.fSalida);
 
         mSaveButton = findViewById(R.id.button_save);
         mSaveButton.setOnClickListener(view -> {
@@ -55,7 +55,7 @@ public class ReservaEdit extends AppCompatActivity {
                 replyIntent.putExtra(ReservaEdit.RESERVA_FECHAENTRADA, mFechaEntradaText.getText().toString());
                 replyIntent.putExtra(ReservaEdit.RESERVA_FECHASALIDA, mFechaSalidaText.getText().toString());
                 if (mRowId!=null) {
-                    replyIntent.putExtra(ReservaEdit.RESERVA_ID_ID, mRowId.intValue());
+                    replyIntent.putExtra(ReservaEdit.RESERVA_ID, mRowId.intValue());
                 }
                 setResult(RESULT_OK, replyIntent);
             }

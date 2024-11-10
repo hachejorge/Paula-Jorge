@@ -38,7 +38,7 @@ public class ReservasListar extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reservaslistar);
-        mRecyclerView = findViewById(R.id.recyclerview);
+        mRecyclerView = findViewById(R.id.recyclerview_reservas);
         mAdapter = new ReservaListAdapter(new ReservaListAdapter.ReservaDiff());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -109,9 +109,9 @@ public class ReservasListar extends AppCompatActivity {
                     if (result.getResultCode() == RESULT_OK) {
                         Bundle extras = result.getData().getExtras();
                         Reserva reserva = new Reserva(extras.getString(ReservaEdit.RESERVA_NOMCLIENTE),
-                                                      extras.getString(ReservaEdit.RESERVA_TLFCLIENTE),
-                                                      extras.getInt(ReservaEdit.RESERVA_FECHAENTRADA),
-                                                      extras.getFloat(ReservaEdit.RESERVA_FECHASALIDA));
+                                                      extras.getInt(ReservaEdit.RESERVA_TLFCLIENTE),
+                                                      extras.getString(ReservaEdit.RESERVA_FECHAENTRADA),
+                                                      extras.getString(ReservaEdit.RESERVA_FECHASALIDA));
                         executable.process(extras, reserva);
                     }
                 });

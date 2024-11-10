@@ -31,10 +31,10 @@ public class Inicio extends AppCompatActivity {
             public void onClick(View view) {
                 // Puedes dejar esto como un Toast temporal hasta que implementes ReservasListar
                 // startActivity(new Intent(MainActivity.this, ReservasListar.class));
-                Toast.makeText(Inicio.this, "ReservasListar aún no está implementado", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(Inicio.this, "ReservasListar aún no está implementado", Toast.LENGTH_SHORT).show();
 
-                //Intent intent = new Intent(Inicio.this, ParcelasListar.class);
-                //startActivity(intent);
+                Intent intent = new Intent(Inicio.this, ReservasListar.class);
+                startActivity(intent);
             }
         });
     }

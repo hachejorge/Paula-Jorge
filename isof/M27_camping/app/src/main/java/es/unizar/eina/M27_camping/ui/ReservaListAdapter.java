@@ -37,7 +37,7 @@ public class ReservaListAdapter extends ListAdapter<Reserva, ReservaViewHolder> 
     public void onBindViewHolder(ReservaViewHolder holder, int position) {
 
         Reserva current = getItem(position);
-        holder.bind(current.getNomCliente());
+        holder.bind(current);
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
