@@ -30,6 +30,7 @@ import es.unizar.eina.M27_camping.R;
 import es.unizar.eina.M27_camping.database.Parcela;
 import es.unizar.eina.M27_camping.database.Reserva;
 import es.unizar.eina.M27_camping.ui.ReservaEdit;
+import es.unizar.eina.send.SendAbstractionImpl;
 
 /** Pantalla en la que se muestra el listado de reservas
  *  Desde ella se pueden añadir, modificar o eliminar cualquiera de ellas. También permite ordenarlas.
@@ -53,6 +54,8 @@ public class ReservasListar extends AppCompatActivity {
 
     FloatingActionButton mFab;
 
+    private SendAbstractionImpl metodoEnvio;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,18 +71,7 @@ public class ReservasListar extends AppCompatActivity {
         mReservasOrdenadasPorTlf = mReservaViewModel.getAllReservasPorTlf();
         mReservasOrdenadasPorFechaEntrada = mReservaViewModel.getAllReservasPorFEntrada();
 
-        /**mReservaViewModel.getAllReservasPorCliente().observe(this, reservas -> {
-            if (reservas != null && !reservas.isEmpty()) {
-                Log.d("ReservasListar", "Datos cargados correctamente: " + reservas.size());
-                for (Reserva reserva : reservas) {
-                    Log.d("ReservasListar", "Reserva: " + reserva.getNomCliente() + " - Número de tlf: " + reserva.getTlfCliente());
-                }
-            } else {
-                Log.d("ReservasListar", "No se encontraron reservas en la base de datos.");
-            }
-            // Update the cached copy of the notes in the adapter.
-            mAdapter.submitList(reservas);
-        });*/
+        metodoEnvio = new SendAbstractionImpl(ReservasListar.this,"WhatsApp");
 
         mFab = findViewById(R.id.fab);
         mFab.setOnClickListener(view -> createReserva());
@@ -145,6 +137,8 @@ public class ReservasListar extends AppCompatActivity {
                     })
                     .show();
         });
+
+        mAdapter.setSendClickListener(reserva -> metodoEnvio.send(reserva.getTlfCliente().toString(), "Confirmacion Reserva"));
 
         // It doesn't affect if we comment the following instruction
         registerForContextMenu(mRecyclerView);

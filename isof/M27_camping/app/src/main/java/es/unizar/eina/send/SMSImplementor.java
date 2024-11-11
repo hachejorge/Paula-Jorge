@@ -1,6 +1,8 @@
 package es.unizar.eina.send;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 
 /** Concrete implementor utilizando la actividad de envío de SMS. No funciona en el emulador si no se ha configurado previamente */
 public class SMSImplementor implements SendImplementor {
@@ -31,7 +33,10 @@ public class SMSImplementor implements SendImplementor {
      * @param message cuerpo del mensaje
      */
     public void send (String phone, String message) {
-	// Por implementar
-   }
+        Uri smsUri = Uri.parse("sms:" + phone);
+        Intent sendIntent = new Intent (Intent.ACTION_VIEW, smsUri);
+        sendIntent.putExtra(" sms_body ", message);
+        getSourceActivity().startActivity (sendIntent);
+    }
 
 }

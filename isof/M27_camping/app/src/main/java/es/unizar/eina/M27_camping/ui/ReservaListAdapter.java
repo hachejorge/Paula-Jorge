@@ -14,6 +14,7 @@ public class ReservaListAdapter extends ListAdapter<Reserva, ReservaViewHolder> 
     private int position;
     private ReservaListAdapter.OnEditClickListener editClickListener;
     private ReservaListAdapter.OnDeleteClickListener deleteClickListener;
+    private ReservaListAdapter.OnClickListenerSend sendClickListener;
 
     public int getPosition() {
         return position;
@@ -36,6 +37,10 @@ public class ReservaListAdapter extends ListAdapter<Reserva, ReservaViewHolder> 
         void onDeleteClick(Reserva reserva);
     }
 
+    public interface OnClickListenerSend {
+        void onClickSend(Reserva reserva);
+    }
+
     public void setOnEditClickListener(ReservaListAdapter.OnEditClickListener listener) {
         this.editClickListener = listener;
     }
@@ -44,9 +49,13 @@ public class ReservaListAdapter extends ListAdapter<Reserva, ReservaViewHolder> 
         this.deleteClickListener = listener;
     }
 
+    public void setSendClickListener(ReservaListAdapter.OnClickListenerSend listener) {
+        this.sendClickListener = listener;
+    }
+
     @Override
     public ReservaViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return ReservaViewHolder.create(parent, this.editClickListener, this.deleteClickListener);
+        return ReservaViewHolder.create(parent, this.editClickListener, this.deleteClickListener, this.sendClickListener);
     }
 
     public Reserva getCurrent() {

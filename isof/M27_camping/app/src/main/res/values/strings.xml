@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Notepad</string>
+    <string name="app_name">ParcelApp</string>
     <string name="hint_nombre">Nombre de la parcela ...</string>
     <string name="hint_descripcion">Descripcion de la parcela ...</string>
     <string name="button_save_parcela">Guardar Parcela</string>
