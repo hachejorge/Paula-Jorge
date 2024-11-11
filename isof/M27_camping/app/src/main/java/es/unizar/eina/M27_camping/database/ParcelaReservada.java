@@ -47,12 +47,12 @@ public class ParcelaReservada {
 
 
     /** Devuelve el identificador de la parcela de la parcela reservada */
-    public int getIdParcelaPRR(){
+    public int getIdParcelaPR(){
         return this.idParcelaPR;
     }
 
     /** Permite actualizar el identificador de una parcela de la parcela reservada */
-    public void setIdParcelaPRPR(int idParcelaPR) {
+    public void setIdParcelaPR(int idParcelaPR) {
         this.idParcelaPR = idParcelaPR;
     }
 
