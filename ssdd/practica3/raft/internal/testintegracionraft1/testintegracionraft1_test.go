@@ -161,7 +161,7 @@ func (cfg *configDespliegue) stop() {
 
 // Se pone en marcha una replica ?? - 3 NODOS RAFT
 func (cfg *configDespliegue) soloArranqueYparadaTest1(t *testing.T) {
-	//t.Skip("SKIPPED soloArranqueYparadaTest1")
+	t.Skip("SKIPPED soloArranqueYparadaTest1")
 
 	fmt.Println(t.Name(), ".....................")
 
@@ -187,7 +187,7 @@ func (cfg *configDespliegue) soloArranqueYparadaTest1(t *testing.T) {
 
 // Primer lider en marcha - 3 NODOS RAFT
 func (cfg *configDespliegue) elegirPrimerLiderTest2(t *testing.T) {
-	t.Skip("SKIPPED ElegirPrimerLiderTest2")
+	//t.Skip("SKIPPED ElegirPrimerLiderTest2")
 
 	fmt.Println(t.Name(), ".....................")
 
@@ -205,27 +205,37 @@ func (cfg *configDespliegue) elegirPrimerLiderTest2(t *testing.T) {
 
 // Fallo de un primer lider y reeleccion de uno nuevo - 3 NODOS RAFT
 func (cfg *configDespliegue) falloAnteriorElegirNuevoLiderTest3(t *testing.T) {
-	t.Skip("SKIPPED FalloAnteriorElegirNuevoLiderTest3")
-
+	//t.Skip("SKIPPED FalloAnteriorElegirNuevoLiderTest3")
+	//cfg.stopDistributedProcesses()
 	fmt.Println(t.Name(), ".....................")
 
 	cfg.startDistributedProcesses()
 
 	fmt.Printf("Lider inicial\n")
 	lider := cfg.pruebaUnLider(3)
-
+	//      cfg.pruebaUnLider(3)
+	cfg.estadoNodo(lider)
+	//cfg.comprobarEstadoRemoto(lider, 2, true, lider)
 	// Desconectar lider
+	fmt.Println("Desconectamos el lider")
 	cfg.stopDistributedProcess(lider)
+	//      cfg.stopDistributedProcesses()
+
+	//time.Sleep(6000 * time.Millisecond)
+	fmt.Println("Relanzamos todos los procesos")
+	cfg.restartDistributedProcesses()
+
+	time.Sleep(6000 * time.Millisecond)
 
 	fmt.Printf("Comprobar nuevo lider\n")
-	cfg.pruebaUnLider(3)
-
-	cfg.restartDistributedProcesses()
+	lider = cfg.pruebaUnLider(3)
+	cfg.estadoNodo(lider)
 
 	// Parar réplicas almacenamiento en remoto
 	cfg.stopDistributedProcesses() //parametros
 
 	fmt.Println(".............", t.Name(), "Superado")
+
 }
 
 // 3 operaciones comprometidas con situacion estable y sin fallos - 3 NODOS RAFT
@@ -346,7 +356,7 @@ func (cfg *configDespliegue) startDistributedProcesses() {
 	}
 
 	// aproximadamente 500 ms para cada arranque por ssh en portatil
-	time.Sleep(2500 * time.Millisecond)
+	time.Sleep(5000 * time.Millisecond)
 }
 
 func (cfg *configDespliegue) restartDistributedProcesses() {
@@ -382,6 +392,14 @@ func (cfg *configDespliegue) comprobarEstadoRemoto(idNodoDeseado int,
 
 	//cfg.t.Log("Estado replica 0: ", idNodo, mandato, esLider, idLider, "\n")
 
+	// Muestra el estado actual de la réplica remota con los valores reales recibidos
+	fmt.Printf("Estado real del nodo - ID: %d, Mandato: %d, Es Líder: %t, ID del Líder: %d\n",
+		idNodo, mandato, esLider, idLider)
+
+	// Muestra el estado esperado para comparación
+	fmt.Printf("Estado esperado del nodo - ID: %d, Mandato: %d, Es Líder: %t, ID del Líder: %d\n",
+		idNodoDeseado, mandatoDeseado, esLiderDeseado, IdLiderDeseado)
+
 	if idNodo != idNodoDeseado || mandato != mandatoDeseado ||
 		esLider != esLiderDeseado || idLider != IdLiderDeseado {
 		cfg.t.Fatalf("Estado incorrecto en replica %d en subtest %s",
@@ -390,9 +408,20 @@ func (cfg *configDespliegue) comprobarEstadoRemoto(idNodoDeseado int,
 
 }
 
+// Comprobar estado remoto de un nodo con respecto a un estado prefijado
+func (cfg *configDespliegue) estadoNodo(idNodoDeseado int) {
+	idNodo, mandato, esLider, idLider := cfg.obtenerEstadoRemoto(idNodoDeseado)
+
+	//cfg.t.Log("Estado replica 0: ", idNodo, mandato, esLider, idLider, "\n")
+
+	// Muestra el estado actual de la réplica remota con los valores reales recibidos
+	fmt.Printf("Estado del nodo - ID: %d, Mandato: %d, Es Líder: %t, ID del Líder: %d\n",
+		idNodo, mandato, esLider, idLider)
+}
+
 func (cfg *configDespliegue) stopDistributedProcess(id int) {
 	var reply raft.Vacio
 
-	err := cfg.nodosRaft[id-1].CallTimeout("NodoRaft.ParaNodo", raft.Vacio{}, reply, 10*time.Millisecond)
+	err := cfg.nodosRaft[id].CallTimeout("NodoRaft.ParaNodo", raft.Vacio{}, &reply, 10*time.Millisecond)
 	check.CheckError(err, "Error en la llamada RPC para un nodo")
 }

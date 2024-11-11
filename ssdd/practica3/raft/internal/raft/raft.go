@@ -91,7 +91,24 @@ type NodoRaft struct {
 	VotesReceived int    // Número de votos recibidos
 	Rol           string // Rol del nodo, ("LEADER", "FOLLOWER", "CANDIDATE")
 
+	CommitIndex int // Índice de la última entrada comprometida (commited)
+	LastAplied  int // Índice de la última entrada aplicada ??
+
+	NextIndex  []int // Índice para cada servidor del log que tenemos que enviarle
+	MatchIndex []int // Índice del log máximo que este replicado en esa máquina
+	// Nodo 0     Lider    [1,1,2]  -> MatchIndex [x,2,1]
+	// Nodo 1	  Follower [1,1]
+	// Nodo 2     Follower [1]
+
+	Logs []Entry
+
 	// mirar figura 2 para descripción del estado que debe mantenre un nodo Raft
+}
+
+type Entry struct {
+	Index int
+	Term  int
+	Op    TipoOperacion
 }
 
 // Creacion de un nuevo nodo de eleccion
@@ -115,6 +132,13 @@ func NuevoNodo(nodos []rpctimeout.HostPort, yo int,
 	nr.Yo = yo
 	nr.IdLider = IntNOINICIALIZADO
 	nr.Rol = "FOLLOWER"
+	nr.CurrentTerm = 0
+	nr.VotedFor = -1
+	nr.VotesReceived = 0
+
+	nr.Follower = make(chan bool)
+	nr.Leader = make(chan bool)
+	nr.Heartbeat = make(chan bool)
 
 	if kEnableDebugLogs {
 		nombreNodo := nodos[yo].Host() + "_" + nodos[yo].Port()
@@ -191,13 +215,24 @@ func (nr *NodoRaft) obtenerEstado() (int, int, bool, int) {
 // Cuarto valor es el lider, es el indice del líder si no es él
 func (nr *NodoRaft) someterOperacion(operacion TipoOperacion) (int, int,
 	bool, int, string) {
+
+	nr.Mux.Lock()
 	indice := -1
 	mandato := -1
-	EsLider := false
-	idLider := -1
+	EsLider := nr.Yo == nr.IdLider
+	idLider := nr.IdLider
 	valorADevolver := ""
 
-	// Vuestro codigo aqui
+	if EsLider {
+		indice = len(nr.Logs)
+		mandato = nr.CurrentTerm
+		entry := Entry{indice, mandato, operacion}
+		nr.Logs = append(nr.Logs, entry)
+		nr.Mux.Unlock()
+		// Esperar a recibir confirmación de commit
+	} else {
+		nr.Mux.Unlock()
+	}
 
 	return indice, mandato, EsLider, idLider, valorADevolver
 }
@@ -235,10 +270,10 @@ type ResultadoRemoto struct {
 	EstadoParcial
 }
 
-func (nr *NodoRaft) SometerOperacionRaft(operacion TipoOperacion,
-	reply *ResultadoRemoto) error {
+func (nr *NodoRaft) SometerOperacionRaft(operacion TipoOperacion, reply *ResultadoRemoto) error {
 	reply.IndiceRegistro, reply.Mandato, reply.EsLider,
 		reply.IdLider, reply.ValorADevolver = nr.someterOperacion(operacion)
+
 	return nil
 }
 
@@ -253,6 +288,8 @@ func (nr *NodoRaft) SometerOperacionRaft(operacion TipoOperacion,
 type ArgsPeticionVoto struct {
 	CandidateTerm int
 	CandidateID   int
+	LastLogIndex  int
+	LastLogTerm   int
 }
 
 // Structura de ejemplo de respuesta de RPC PedirVoto,
@@ -265,20 +302,47 @@ type RespuestaPeticionVoto struct {
 	VoteGranted bool
 }
 
+// Función que devuelve true si el nodo solicitante tiene logs más avanzados que el nodo nr
+func isBetterLeader(nr *NodoRaft, request *ArgsPeticionVoto) bool {
+	isBetter := false
+	// Si el mantado de la última entrada del log del nodo soliciante es mayor que el nuestro
+	// se concede el voto
+	if nr.Logs[len(nr.Logs)-1].Term < request.LastLogTerm {
+		isBetter = true
+
+		// Si los mandatos son iguales se compara según la cantidad de logs almacenados
+	} else if nr.Logs[len(nr.Logs)-1].Term == request.LastLogTerm &&
+		request.LastLogIndex >= len(nr.Logs)-1 {
+
+		isBetter = true
+	}
+
+	return isBetter
+}
+
 // Metodo para RPC PedirVoto
 func (nr *NodoRaft) PedirVoto(peticion *ArgsPeticionVoto,
 	reply *RespuestaPeticionVoto) error {
 
 	if peticion.CandidateTerm > nr.CurrentTerm { // Si me llega un mandato mayor al mío le doy el voto
-		reply.Term = peticion.CandidateTerm
-		reply.VoteGranted = true
-		nr.CurrentTerm = peticion.CandidateTerm
-		nr.VotedFor = peticion.CandidateID
-		if nr.Rol == "LEADER" || nr.Rol == "CANDIDATE" {
-			// Vuelvo a ser follower
-			nr.Follower <- true
+
+		if len(nr.Logs) == 0 || isBetterLeader(nr, peticion) {
+			reply.Term = peticion.CandidateTerm
+			reply.VoteGranted = true
+			nr.CurrentTerm = peticion.CandidateTerm
+			nr.VotedFor = peticion.CandidateID
+			if nr.Rol == "LEADER" || nr.Rol == "CANDIDATE" {
+				// Vuelvo a ser follower
+				nr.Follower <- true
+			}
+			// No le doy el voto
+		} else {
+			// nr.CurrentTerm = peticion.CandidateTerm no es necesario ??
+			reply.Term = nr.CurrentTerm
+			reply.VoteGranted = false
 		}
-	} else { // Si llega un mandato menor al mío no le doy el voto o igual al mío
+
+	} else { // Si llega un mandato menor al mío no le doy el voto
 		reply.Term = nr.CurrentTerm
 		reply.VoteGranted = false
 	}
@@ -290,11 +354,17 @@ type ArgAppendEntries struct {
 	Term     int
 	LeaderID int
 	// Más en P4
+	PrevLogIndex int
+	PrevLogTerm  int
+
+	entries []Entry // Vector para la eficiencia ?
+
+	LeaderCommit int
 }
 
 type Results struct {
-	Term int
-	// Vuestros datos aqui
+	Term    int
+	Success bool
 }
 
 // Metodo de tratamiento de llamadas RPC AppendEntries
@@ -302,6 +372,7 @@ func (nr *NodoRaft) AppendEntries(args *ArgAppendEntries,
 	results *Results) error {
 	if args.Term < nr.CurrentTerm { // Heartbeat atrasado
 		results.Term = nr.CurrentTerm
+		results.Success = false
 	} else if args.Term == nr.CurrentTerm { // Recibo heartbeat en mi mismo periodo
 		nr.IdLider = args.LeaderID
 		results.Term = args.Term
@@ -367,7 +438,9 @@ func (nr *NodoRaft) enviarPeticionVoto(nodo int, args *ArgsPeticionVoto,
 		} else if reply.VoteGranted {
 			//Si me dan el voto compruebo si tengo mayoría simple, en cuyo caso
 			//me convierto en líder
+			nr.Mux.Lock()
 			nr.VotesReceived++
+			nr.Mux.Unlock()
 			if nr.VotesReceived > len(nr.Nodos)/2 {
 				nr.Leader <- true
 			}
@@ -422,6 +495,9 @@ func raftHandler(nr *NodoRaft) {
 	//var timerFollower time.Timer
 	//var timerLeader time.Timer
 	//timerLeader := time.NewTimer(50 * time.Millisecond)
+
+	// Descomentar para la primera prueba del test 1
+	// time.Sleep(6000 * time.Millisecond)
 
 	for {
 		if nr.Rol == "FOLLOWER" {
