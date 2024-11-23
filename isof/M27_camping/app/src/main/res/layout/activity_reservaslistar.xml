@@ -57,24 +57,27 @@
         android:gravity="center_vertical">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_width="290dp"
+            android:layout_height="53dp"
+            android:layout_marginLeft="@dimen/big_padding"
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
             <!-- FloatingActionButton para añadir nuevos elementos -->
+
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="110dp"
+                android:layout_height="37dp"
                 android:text="@string/orden_parcelas"
-                android:textStyle="bold"
-                android:textSize="12dp">
-            </TextView>
+                android:textSize="16dp"
+                android:textStyle="bold"></TextView>
+
             <Spinner
                 android:id="@+id/spinner"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
                 android:layout_weight="1"
-                android:textSize="12dp"/>
+                android:textSize="12dp" />
         </LinearLayout>
 
 
@@ -106,3 +109,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

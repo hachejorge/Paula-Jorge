@@ -11,7 +11,7 @@ import java.util.Locale;
 /** Clase aparcelada como entidad que representa una parcela reservada */
 @Entity(
         tableName = "parcelaReservada",
-        primaryKeys = {"idReserva", "idParcela"} //Definimos la clave primaria compuesta
+        primaryKeys = {"idReservaPR", "idParcelaPR"} //Definimos la clave primaria compuesta
 )
 
 public class ParcelaReservada {
@@ -23,14 +23,18 @@ public class ParcelaReservada {
     @ColumnInfo(name = "idParcelaPR")
     private int idParcelaPR;
 
+    @ColumnInfo(name = "nomParcela")
+    private String nomParcela;
+
     @ColumnInfo(name = "numOcupantes")
     private Integer numOcupantes;
 
 
 
-    public ParcelaReservada(@NonNull int idReservaPR, @NonNull int idParcelaPR, Integer numOcupantes) {
+    public ParcelaReservada(@NonNull int idReservaPR, @NonNull int idParcelaPR, String nomParcela, Integer numOcupantes) {
         this.idReservaPR = idReservaPR;
         this.idParcelaPR = idParcelaPR;
+        this.nomParcela = nomParcela;
         this.numOcupantes = numOcupantes;
     }
 
@@ -46,7 +50,7 @@ public class ParcelaReservada {
     }
 
 
-    /** Devuelve el identificador de la parcela de la parcela reservada */
+    /** Devuelve el identificador de la parcela reservada */
     public int getIdParcelaPR(){
         return this.idParcelaPR;
     }
@@ -54,6 +58,17 @@ public class ParcelaReservada {
     /** Permite actualizar el identificador de una parcela de la parcela reservada */
     public void setIdParcelaPR(int idParcelaPR) {
         this.idParcelaPR = idParcelaPR;
+    }
+
+
+    /** Devuelve el nombre de la parcela reservada */
+    public String getNomParcela(){
+        return this.nomParcela;
+    }
+
+    /** Permite actualizar el nombre de una parcela reservada */
+    public void setNomParcela(String nomParcela) {
+        this.nomParcela = nomParcela;
     }
 
 

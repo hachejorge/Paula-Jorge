@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -53,6 +53,7 @@
         android:inputType="textAutoComplete"
         android:scrollbars="vertical"
         android:textSize="14sp"
+        android:minHeight="@dimen/min_height"
         android:padding="@dimen/big_padding"
         android:background="@drawable/edittext_background"
         android:minLines="4" />
@@ -70,14 +71,15 @@
 
     <EditText
         android:id="@+id/maxOcupantes"
-        android:layout_width="90dp"
+        android:layout_width="104dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/small_padding"
+        android:background="@drawable/edittext_background"
         android:fontFamily="sans-serif-light"
         android:inputType="number"
-        android:textSize="14sp"
+        android:minHeight="@dimen/min_height"
         android:padding="@dimen/small_padding"
-        android:background="@drawable/edittext_background"/>
+        android:textSize="14sp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -89,12 +91,13 @@
 
     <EditText
         android:id="@+id/precioPorPersona"
-        android:layout_width="90dp"
+        android:layout_width="104dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/small_padding"
         android:background="@drawable/edittext_background"
         android:fontFamily="sans-serif-light"
         android:inputType="numberDecimal"
+        android:minHeight="@dimen/min_height"
         android:padding="@dimen/small_padding"
         android:textSize="14sp" />
 

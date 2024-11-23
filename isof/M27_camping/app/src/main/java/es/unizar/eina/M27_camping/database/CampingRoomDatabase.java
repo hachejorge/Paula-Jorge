@@ -15,11 +15,12 @@ import java.util.concurrent.Executors;
  *   Clase que crea la base de datos de la aplicación ParcelAPP
  *   Principalmente compuesta por parcelas y reservas
  **/
-@Database(entities = {Parcela.class, Reserva.class}, version = 2, exportSchema = false)
+@Database(entities = {Parcela.class, Reserva.class, ParcelaReservada.class}, version = 2, exportSchema = false)
 public abstract class CampingRoomDatabase extends RoomDatabase {
 
     public abstract ParcelaDao parcelaDao();
     public abstract ReservaDao reservaDao();
+    public abstract ParcelaReservadaDao parcelaReservadaDao();
 
     private static volatile CampingRoomDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;

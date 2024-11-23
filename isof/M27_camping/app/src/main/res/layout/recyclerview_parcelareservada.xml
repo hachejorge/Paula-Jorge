@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/border_background"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Botón para eliminar (ícono de papelera) -->
+        <ImageView
+            android:id="@+id/delete_icon_reserva"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:src="@drawable/ic_delete" />
+
+        <!-- Nombre de la parcela reservada -->
+        <TextView
+            android:id="@+id/nombre"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="14sp" />
+
+        <!-- Número de ocupantes de la parcela reservada -->
+        <TextView
+            android:id="@+id/parcela_occupants"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="14sp" />
+
+        <!-- Flechas para aumentar y disminuir ocupantes -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Flecha para aumentar ocupantes -->
+            <ImageView
+                android:id="@+id/increase_icon_reserva"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:src="@drawable/ic_arrowup" />
+
+            <!-- Flecha para disminuir ocupantes -->
+            <ImageView
+                android:id="@+id/decrease_icon_reserva"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:src="@drawable/ic_arrowdown" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -17,7 +17,7 @@ public class Inicio extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Se asigna la vista de activy de inicio
+        // Se asigna la vista de activity de inicio
         setContentView(R.layout.activity_inicio);
 
         // Configuramos el botón de ver parcelas

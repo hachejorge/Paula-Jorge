@@ -1,137 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-<ScrollView
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    tools:context=".ui.ReservaEdit">
 
-<LinearLayout
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <TextView android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/nomCliente"
-        android:layout_margin="@dimen/small_padding"
-        android:textSize="12sp"
-        android:textStyle="bold"/>
-
-    <EditText
-        android:id="@+id/nomCliente"
-        android:layout_width="387dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/small_padding"
-        android:background="@drawable/edittext_background"
-        android:fontFamily="sans-serif-light"
-        android:hint="@string/hint_nomCliente"
-        android:inputType="textAutoComplete"
-        android:minHeight="@dimen/min_height"
-        android:paddingLeft="@dimen/small_padding"
-        android:textSize="14sp" />
-
-
-    <TextView android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/tlfCliente"
-        android:layout_margin="@dimen/small_padding"
-        android:textSize="12sp"
-        android:textStyle="bold"/>
-
-
-    <!-- Sección de Fechas de entrada y de salida en una fila horizontal -->
-    <EditText
-        android:id="@+id/tlfCliente"
-        android:layout_width="387dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/small_padding"
-        android:background="@drawable/edittext_background"
-        android:fontFamily="sans-serif-light"
-        android:hint="@string/hint_tlfCliente"
-        android:inputType="number"
-        android:minLines="4"
-        android:padding="@dimen/big_padding"
-        android:scrollbars="vertical"
-        android:textSize="14sp" />
-
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="@dimen/small_padding">
+        android:layout_height="match_parent">
 
-        <!-- Columna de Fecha de Entrada -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/small_padding"
-                android:text="@string/fEntrada"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/fEntrada"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/small_padding"
-                android:background="@drawable/edittext_background"
-                android:fontFamily="sans-serif-light"
-                android:hint="@string/hint_fecha"
-                android:inputType="textAutoComplete"
-                android:padding="@dimen/small_padding"
-                android:textSize="14sp" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-        <!-- Columna de Fecha de Salida -->
-        <LinearLayout
-            android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/big_padding"
+                    android:text="@string/nomCliente"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/nomCliente"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/big_padding"
+                    android:background="@drawable/edittext_background"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="@string/hint_nomCliente"
+                    android:inputType="textAutoComplete"
+                    android:minHeight="@dimen/min_height"
+                    android:paddingLeft="@dimen/small_padding"
+                    android:textSize="14sp" />
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/big_padding"
+                    android:text="@string/tlfCliente"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+
+                <!-- Sección de Fechas de entrada y de salida en una fila horizontal -->
+                <EditText
+                    android:id="@+id/tlfCliente"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/big_padding"
+                    android:background="@drawable/edittext_background"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="@string/hint_tlfCliente"
+                    android:inputType="phone"
+                    android:minLines="4"
+                    android:padding="@dimen/big_padding"
+                    android:scrollbars="vertical"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/small_padding"
+                    android:orientation="horizontal">
+
+                    <!-- Columna de Fecha de Entrada -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/small_padding"
+                            android:text="@string/fEntrada"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/fEntrada"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:layout_margin="@dimen/small_padding"
+                            android:background="@drawable/edittext_background"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="@string/hint_fecha"
+                            android:inputType="date"
+                            android:padding="@dimen/small_padding"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <!-- Columna de Fecha de Salida -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/small_padding"
+                            android:text="@string/fSalida"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/fSalida"
+                            android:layout_width="match_parent"
+                            android:layout_height="53dp"
+                            android:layout_margin="@dimen/small_padding"
+                            android:background="@drawable/edittext_background"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="@string/hint_fecha"
+                            android:inputType="date"
+                            android:padding="@dimen/small_padding"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerview"
+                    android:layout_width="411dp"
+                    android:layout_height="262dp"
+                    android:padding="12dp"
+                    tools:listitem="@layout/recyclerview_parcelareservada" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <Button
+            android:id="@+id/button_save"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/small_padding"
-                android:text="@string/fSalida"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/fSalida"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/small_padding"
-                android:background="@drawable/edittext_background"
-                android:fontFamily="sans-serif-light"
-                android:hint="@string/hint_fecha"
-                android:inputType="textAutoComplete"
-                android:padding="@dimen/small_padding"
-                android:textSize="14sp" />
-        </LinearLayout>
-    </LinearLayout>
+            android:background="@drawable/button_border_background"
+            android:text="@string/button_save_reserva"
+            android:layout_alignParentBottom="true"
+            android:textColor="@color/buttonLabel"
+            android:layout_margin="@dimen/big_padding" />
 
 
-</LinearLayout>
-
-</ScrollView>
-    <Button
-        android:id="@+id/button_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:text="@string/button_save_reserva"
-        android:layout_alignParentBottom="true"
-        android:textColor="@color/buttonLabel"
-        android:layout_margin="@dimen/small_padding" />
-
-</RelativeLayout>
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

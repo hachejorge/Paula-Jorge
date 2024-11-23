@@ -76,4 +76,5 @@ class ParcelaViewHolder extends RecyclerView.ViewHolder implements View.OnCreate
     }
 
 
+
 }
