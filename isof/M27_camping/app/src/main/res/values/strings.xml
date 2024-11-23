@@ -3,7 +3,8 @@
     <string name="hint_nombre">Nombre de la parcela ...</string>
     <string name="hint_descripcion">Descripcion de la parcela ...</string>
     <string name="button_save_parcela">Guardar Parcela</string>
-    <string name="empty_not_saved">Note not saved because title is empty.</string>
+    <string name="reserva_not_saved">Reserva no guardada porque no tiene el nombre del cliente</string>
+    <string name="parcela_not_saved">Parcela no guardada porque no tiene el nombre de la parcela</string>
     <string name="add_parcela">Añadir Parcela</string>
     <string name="menu_delete">Delete Note</string>
     <string name="menu_edit">Edit Note</string>

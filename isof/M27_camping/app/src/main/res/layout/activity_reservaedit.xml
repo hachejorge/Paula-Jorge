@@ -132,7 +132,7 @@
 
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerview"
+                    android:id="@+id/recyclerview_parcelas_reservadas"
                     android:layout_width="411dp"
                     android:layout_height="262dp"
                     android:padding="12dp"

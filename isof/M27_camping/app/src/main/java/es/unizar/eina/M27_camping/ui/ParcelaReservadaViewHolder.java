@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import es.unizar.eina.M27_camping.R;
 import es.unizar.eina.M27_camping.database.ParcelaReservada;
 
-class ParcelaReservadaViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+class ParcelaReservadaViewHolder extends RecyclerView.ViewHolder {
     private final TextView mParcelaNameView;
     private final TextView mParcelaOcuppantsView;
 
@@ -31,20 +31,18 @@ class ParcelaReservadaViewHolder extends RecyclerView.ViewHolder implements View
         super(itemView);
         mParcelaNameView = itemView.findViewById(R.id.textView);
         mParcelaOcuppantsView = itemView.findViewById(R.id.parcela_occupants);
-        mAumentarIcon = itemView.findViewById(R.id.edit_icon);
-        mDisminuirIcon = itemView.findViewById(R.id.edit_icon);
-        mDeleteIcon = itemView.findViewById(R.id.delete_icon);
+        mAumentarIcon = itemView.findViewById(R.id.increase_icon_reserva);
+        mDisminuirIcon = itemView.findViewById(R.id.decrease_icon_reserva);
+        mDeleteIcon = itemView.findViewById(R.id.delete_icon_parcela_reservada);
 
         this.aumentarClickListener = aumentarListener;
         this.disminuirClickListener = disminuirListener;
         this.deleteClickListener = deleteListener;
-
-        itemView.setOnCreateContextMenuListener(this);
     }
 
     public void bind(ParcelaReservada parcelaReservada) {
-        mParcelaNameView.setText(parcelaReservada.getNomParcela());
-        mParcelaOcuppantsView.setText(parcelaReservada.getNumOcupantes());
+        mParcelaNameView.setText("Parcela: " + parcelaReservada.getNomParcela());
+        mParcelaOcuppantsView.setText("Nº Ocupantes: " + parcelaReservada.getNumOcupantes());
         // Configurar evento de clic para aumentar
         mAumentarIcon.setOnClickListener(v -> {
             if (aumentarClickListener != null) {
@@ -75,14 +73,6 @@ class ParcelaReservadaViewHolder extends RecyclerView.ViewHolder implements View
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recyclerview_item, parent, false);
         return new ParcelaReservadaViewHolder(view, aumentarListener, disminuirListener, deleteListener);
-    }
-
-//?????????????????????????
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        //super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(Menu.NONE, ParcelasListar.DELETE_ID, Menu.NONE, R.string.menu_delete);
-        menu.add(Menu.NONE, ParcelasListar.EDIT_ID, Menu.NONE, R.string.menu_edit);
     }
 
 

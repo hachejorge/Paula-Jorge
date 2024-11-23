@@ -13,7 +13,7 @@
 
         <!-- Botón para eliminar (ícono de papelera) -->
         <ImageView
-            android:id="@+id/delete_icon_reserva"
+            android:id="@+id/delete_icon_parcela_reservada"
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:padding="8dp"

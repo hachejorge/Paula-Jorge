@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
  *   Clase que crea la base de datos de la aplicación ParcelAPP
  *   Principalmente compuesta por parcelas y reservas
  **/
-@Database(entities = {Parcela.class, Reserva.class, ParcelaReservada.class}, version = 2, exportSchema = false)
+@Database(entities = {Parcela.class, Reserva.class, ParcelaReservada.class}, version = 3, exportSchema = false)
 public abstract class CampingRoomDatabase extends RoomDatabase {
 
     public abstract ParcelaDao parcelaDao();
@@ -51,6 +51,9 @@ public abstract class CampingRoomDatabase extends RoomDatabase {
             databaseWriteExecutor.execute(() -> {
                 // Populate the database in the background.
                 // If you want to start with more notes, just add them.
+                ParcelaReservadaDao daoParcelaReservada = INSTANCE.parcelaReservadaDao();
+                daoParcelaReservada.deleteAll();
+
                 ParcelaDao daoParcela = INSTANCE.parcelaDao();
                 daoParcela.deleteAll();
 
@@ -68,6 +71,9 @@ public abstract class CampingRoomDatabase extends RoomDatabase {
                 daoReserva.insert(reserva);
                 reserva = new Reserva("Pepito", 987654321, "30/12/2024", "2/1/2025");
                 daoReserva.insert(reserva);
+
+                ParcelaReservada parcelaReservada = new ParcelaReservada(1,1, daoParcela.getParcelaById(1).getNombre(),6);
+                daoParcelaReservada.insert(parcelaReservada);
 
 
             });

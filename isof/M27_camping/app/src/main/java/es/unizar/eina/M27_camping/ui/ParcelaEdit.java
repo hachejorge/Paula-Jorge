@@ -48,7 +48,7 @@ public class ParcelaEdit extends AppCompatActivity {
             Intent replyIntent = new Intent();
             if (TextUtils.isEmpty(mNombreText.getText())) {
                 setResult(RESULT_CANCELED, replyIntent);
-                Toast.makeText(getApplicationContext(), R.string.empty_not_saved, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.parcela_not_saved, Toast.LENGTH_LONG).show();
             } else {
                 replyIntent.putExtra(ParcelaEdit.PARCELA_NOMBRE, mNombreText.getText().toString());
                 replyIntent.putExtra(ParcelaEdit.PARCELA_DESCRIPCION, mDescripcionText.getText().toString());

@@ -34,8 +34,6 @@ public class ParcelaReservadaListAdapter extends ListAdapter<ParcelaReservada, P
     }
 
 
-
-
     public void setOnAumentarClickListener(OnAumentarClickListener listener) {
         this.aumentarClickListener = listener;
     }

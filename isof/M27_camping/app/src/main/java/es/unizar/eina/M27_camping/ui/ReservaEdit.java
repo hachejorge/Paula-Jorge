@@ -8,8 +8,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
 
 import es.unizar.eina.M27_camping.R;
+import es.unizar.eina.M27_camping.database.ParcelaReservada;
 
 /** Pantalla utilizada para la creación o edición de una reserva */
 public class ReservaEdit extends AppCompatActivity {
@@ -32,22 +39,40 @@ public class ReservaEdit extends AppCompatActivity {
 
     Button mSaveButton;
 
+    private ParcelaReservadaViewModel mParcelaReservadasViewModel;
+    private RecyclerView mRecyclerViewParcelasReservadas;
+    private ParcelaReservadaListAdapter mParcelasReservadasAdapter;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reservaedit);
+
 
         mNomClienteText = findViewById(R.id.nomCliente);
         mTlfClienteText = findViewById(R.id.tlfCliente);
         mFechaEntradaText = findViewById(R.id.fEntrada);
         mFechaSalidaText = findViewById(R.id.fSalida);
 
+        mRecyclerViewParcelasReservadas = findViewById(R.id.recyclerview_parcelas_reservadas);
+        mParcelasReservadasAdapter = new ParcelaReservadaListAdapter(new ParcelaReservadaListAdapter.ParcelaReservadaDiff());
+        mRecyclerViewParcelasReservadas.setAdapter(mParcelasReservadasAdapter);
+        mRecyclerViewParcelasReservadas.setLayoutManager(new LinearLayoutManager(this));
+
+        mParcelaReservadasViewModel = new ViewModelProvider(this).get(ParcelaReservadaViewModel.class);
+
+        mParcelaReservadasViewModel.getAllParcelasReservadas().observe(this, parcelaReservadas -> {
+            if (parcelaReservadas != null ) {
+                mParcelasReservadasAdapter.submitList(parcelaReservadas);
+            }
+        });
+
         mSaveButton = findViewById(R.id.button_save);
         mSaveButton.setOnClickListener(view -> {
             Intent replyIntent = new Intent();
             if (TextUtils.isEmpty(mNomClienteText.getText())) {
                 setResult(RESULT_CANCELED, replyIntent);
-                Toast.makeText(getApplicationContext(), R.string.empty_not_saved, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.reserva_not_saved, Toast.LENGTH_LONG).show();
             } else {
                 
                 replyIntent.putExtra(ReservaEdit.RESERVA_NOMCLIENTE, mNomClienteText.getText().toString());
