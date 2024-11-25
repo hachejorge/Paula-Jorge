@@ -3,8 +3,9 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/orange</item>
-        <item name="colorPrimaryDark">@color/orange</item>
+        <item name="android:fontFamily">@font/parkinsans</item>
+        <item name="colorPrimary">@color/verdeEsperanza</item>
+        <item name="colorPrimaryDark">@color/verdeEsperanza</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
@@ -14,7 +15,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:paddingLeft">8dp</item>
-        <item name="android:background">@android:color/holo_orange_light</item>
+        <item name="android:background">"@color/verdeEsperanza"</item>
         <item name="android:textAppearance">@android:style/TextAppearance.Large</item>
     </style>
 </resources>

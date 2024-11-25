@@ -22,5 +22,5 @@
     <string name="hint_fecha">dd/mm/aaaa</string>
     <string name="button_save_reserva">Guardar Reserva</string>
     <string name="add_reserva">Añadir Reserva</string>
-    <string name="parcelasReservadas">Añadir parcelas:</string>
+    <string name="parcelasReservadas">Añadir parcelas</string>
 </resources>

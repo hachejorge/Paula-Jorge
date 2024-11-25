@@ -3,14 +3,16 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/grisClaro"
+    android:background="@drawable/border_background"
     android:padding="8dp">
 
     <TextView
         android:id="@+id/textView"
         style="@style/word_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:background="@drawable/border_background_oscuro"/>
 
     <!-- Número de Ocupantes -->
     <TextView

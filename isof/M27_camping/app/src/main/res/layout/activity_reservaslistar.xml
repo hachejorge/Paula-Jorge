@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/orange"
+        android:background="@color/verdeEsperanza"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -22,6 +22,7 @@
             android:layout_height="wrap_content"
             android:text="ParcelApp"
             android:textSize="30sp"
+            android:fontFamily="@font/righteous_regular"
             android:textColor="@android:color/white"
             android:layout_gravity="center" />
     </androidx.appcompat.widget.Toolbar>
@@ -88,8 +89,8 @@
             android:layout_margin="16dp"
             android:src="@drawable/ic_add_black_24dp"
             android:contentDescription="@string/add_parcela"
-            android:backgroundTint="@color/orange"
-            app:backgroundTint="@color/orange"
+            android:backgroundTint="@color/verdeEsperanza"
+            app:backgroundTint="@color/verdeEsperanza"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

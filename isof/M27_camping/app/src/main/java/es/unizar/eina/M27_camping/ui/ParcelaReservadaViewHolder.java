@@ -44,7 +44,7 @@ class ParcelaReservadaViewHolder extends RecyclerView.ViewHolder {
         mParcelaNameView.setText("Parcela: " + parcelaReservada.getNomParcela());
         mParcelaOcuppantsView.setText("Nº Ocupantes: " + parcelaReservada.getNumOcupantes());
         // Configurar evento de clic para aumentar
-        mAumentarIcon.setOnClickListener(v -> {
+        /**mAumentarIcon.setOnClickListener(v -> {
             if (aumentarClickListener != null) {
                 aumentarClickListener.onAumentarClick(parcelaReservada);
             }
@@ -62,7 +62,7 @@ class ParcelaReservadaViewHolder extends RecyclerView.ViewHolder {
             if (deleteClickListener != null) {
                 deleteClickListener.onDeleteClick(parcelaReservada);
             }
-        });
+        });**/
     }
 
 

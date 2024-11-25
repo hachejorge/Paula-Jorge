@@ -112,7 +112,7 @@
         android:id="@+id/button_save"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/button_border_background"
         android:text="@string/button_save_parcela"
         android:layout_alignParentBottom="true"
         android:textColor="@color/buttonLabel"

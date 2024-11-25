@@ -181,14 +181,14 @@ public class ParcelasListar extends AppCompatActivity {
         mStartCreateNote.launch(new Intent(this, ParcelaEdit.class));
     }
 
-    ActivityResultLauncher<Intent> mStartCreateNote = newActivityResultLauncher(new ExecuteActivityResultParcelas() {
+    ActivityResultLauncher<Intent> mStartCreateNote = newActivityResultLauncher(new ExecuteActivityResultParcelaReservada() {
         @Override
         public void process(Bundle extras, Parcela parcela) {
             mParcelaViewModel.insert(parcela);
         }
     });
 
-    ActivityResultLauncher<Intent> newActivityResultLauncher(ExecuteActivityResultParcelas executable) {
+    ActivityResultLauncher<Intent> newActivityResultLauncher(ExecuteActivityResultParcelaReservada executable) {
         return registerForActivityResult(
                 new StartActivityForResult(),
                 result -> {
@@ -213,7 +213,7 @@ public class ParcelasListar extends AppCompatActivity {
         mStartUpdateParcela.launch(intent);
     }
 
-    ActivityResultLauncher<Intent> mStartUpdateParcela = newActivityResultLauncher(new ExecuteActivityResultParcelas() {
+    ActivityResultLauncher<Intent> mStartUpdateParcela = newActivityResultLauncher(new ExecuteActivityResultParcelaReservada() {
         @Override
         public void process(Bundle extras, Parcela parcela) {
             int id = extras.getInt(ParcelaEdit.PARCELA_ID);

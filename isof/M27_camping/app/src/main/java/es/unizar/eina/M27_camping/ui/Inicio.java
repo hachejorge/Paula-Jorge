@@ -3,7 +3,6 @@ package es.unizar.eina.M27_camping.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import es.unizar.eina.M27_camping.R;
@@ -24,7 +23,7 @@ public class Inicio extends AppCompatActivity {
         findViewById(R.id.button_parcelas_listar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Inicio.this, ParcelasListar.class);
+                Intent intent = new Intent(Inicio.this, ParcelaReservadaListar.class);
                 startActivity(intent);
             }
         });

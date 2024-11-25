@@ -129,13 +129,35 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_margin="@dimen/small_padding">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/small_padding"
+                        android:text="@string/parcelasReservadas"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/parcelas_disponibles"
+                        android:layout_width="380dp"
+                        android:layout_height="52dp"
+                        android:layout_margin="@dimen/small_padding"
+                        android:background="@drawable/edittext_background" />
+
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerview_parcelas_reservadas"
-                    android:layout_width="411dp"
-                    android:layout_height="262dp"
-                    android:padding="12dp"
+                    android:layout_width="385dp"
+                    android:layout_height="165dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
                     tools:listitem="@layout/recyclerview_parcelareservada" />
 
             </LinearLayout>

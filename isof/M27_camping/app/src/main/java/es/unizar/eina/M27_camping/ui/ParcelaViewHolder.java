@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import es.unizar.eina.M27_camping.R;
 import es.unizar.eina.M27_camping.database.Parcela;
 
-class ParcelaViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+class ParcelaViewHolder extends RecyclerView.ViewHolder {
     private final TextView mParcelaNameView;
     private final TextView mParcelaOcuppantsView;
     private final TextView mParcelaPriceView;
@@ -35,8 +35,6 @@ class ParcelaViewHolder extends RecyclerView.ViewHolder implements View.OnCreate
 
         this.editClickListener = editListener;
         this.deleteClickListener = deleteListener;
-
-        itemView.setOnCreateContextMenuListener(this);
     }
 
     public void bind(Parcela parcela) {
@@ -67,13 +65,6 @@ class ParcelaViewHolder extends RecyclerView.ViewHolder implements View.OnCreate
         return new ParcelaViewHolder(view, editListener, deleteListener);
     }
 
-
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        //super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(Menu.NONE, ParcelasListar.DELETE_ID, Menu.NONE, R.string.menu_delete);
-        menu.add(Menu.NONE, ParcelasListar.EDIT_ID, Menu.NONE, R.string.menu_edit);
-    }
 
 
 

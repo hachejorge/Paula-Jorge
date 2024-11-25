@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import es.unizar.eina.M27_camping.R;
 import es.unizar.eina.M27_camping.database.Reserva;
 
-class ReservaViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+class ReservaViewHolder extends RecyclerView.ViewHolder {
     private final TextView mReservaID;
     private final TextView mReservaNombre;
     private final TextView mReservaTlf;
@@ -47,7 +47,7 @@ class ReservaViewHolder extends RecyclerView.ViewHolder implements View.OnCreate
         this.deleteClickListener = deleteListener;
         this.sendClickListener = sendListener;
 
-        itemView.setOnCreateContextMenuListener(this);
+
     }
 
     public void bind(Reserva reserva) {
@@ -87,12 +87,7 @@ class ReservaViewHolder extends RecyclerView.ViewHolder implements View.OnCreate
     }
 
 
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        //super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(Menu.NONE, ReservasListar.DELETE_ID, Menu.NONE, R.string.menu_delete);
-        menu.add(Menu.NONE, ReservasListar.EDIT_ID, Menu.NONE, R.string.menu_edit);
-    }
+
 
 
 }

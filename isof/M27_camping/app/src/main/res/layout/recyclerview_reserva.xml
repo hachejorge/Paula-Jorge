@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/grisClaro"
+    android:background="@drawable/border_background"
     android:padding="8dp">
 
     <!-- ID reserva -->
@@ -11,7 +11,9 @@
         android:id="@+id/idReserva"
         style="@style/word_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:background="@drawable/border_background_oscuro"/>
 
     <!-- Nombre del cliente -->
     <TextView
