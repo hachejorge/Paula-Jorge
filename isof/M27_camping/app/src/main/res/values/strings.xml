@@ -19,7 +19,7 @@
     <string name="fSalida">Fecha de salida</string>
     <string name="hint_nomCliente">Nombre y apellidos...</string>
     <string name="hint_tlfCliente">Teléfono...</string>
-    <string name="hint_fecha">dd/mm/aaaa</string>
+    <string name="hint_fecha">aaaa/mm/dd</string>
     <string name="button_save_reserva">Guardar Reserva</string>
     <string name="add_reserva">Añadir Reserva</string>
     <string name="parcelasReservadas">Añadir parcelas</string>

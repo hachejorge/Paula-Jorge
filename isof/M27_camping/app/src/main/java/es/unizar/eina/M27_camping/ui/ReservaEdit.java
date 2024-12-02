@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.app.DatePickerDialog;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
@@ -13,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Calendar;
 import java.util.List;
 
 import es.unizar.eina.M27_camping.R;
@@ -48,7 +51,6 @@ public class ReservaEdit extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reservaedit);
 
-
         mNomClienteText = findViewById(R.id.nomCliente);
         mTlfClienteText = findViewById(R.id.tlfCliente);
         mFechaEntradaText = findViewById(R.id.fEntrada);
@@ -60,6 +62,12 @@ public class ReservaEdit extends AppCompatActivity {
         mRecyclerViewParcelasReservadas.setLayoutManager(new LinearLayoutManager(this));
 
         mParcelaReservadasViewModel = new ViewModelProvider(this).get(ParcelaReservadaViewModel.class);
+
+        // Añadir el selector de fecha para mFechaEntradaText
+        mFechaEntradaText.setOnClickListener(v -> mostrarDatePicker(mFechaEntradaText));
+
+        // Añadir el selector de fecha para mFechaSalidaText
+        mFechaSalidaText.setOnClickListener(v -> mostrarDatePicker(mFechaSalidaText));
 
         mParcelaReservadasViewModel.getAllParcelasReservadas().observe(this, parcelaReservadas -> {
             if (parcelaReservadas != null ) {
@@ -113,6 +121,22 @@ public class ReservaEdit extends AppCompatActivity {
             mFechaSalidaText.setText(extras.getString(ReservaEdit.RESERVA_FECHASALIDA));
             mRowId = extras.getInt(ReservaEdit.RESERVA_ID);
         }
+    }
+
+    // Método para mostrar el DatePickerDialog
+    private void mostrarDatePicker(EditText editText) {
+        final Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year1, month1, dayOfMonth) -> {
+            // Formatear la fecha como AAAA-MM-DD
+            String fechaSeleccionada = String.format("%04d-%02d-%02d", year1, month1 + 1, dayOfMonth);
+            editText.setText(fechaSeleccionada);
+        }, year, month, day);
+
+        datePickerDialog.show();
     }
 
 }

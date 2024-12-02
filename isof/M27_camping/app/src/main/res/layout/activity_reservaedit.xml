@@ -51,7 +51,6 @@
                     android:textStyle="bold" />
 
 
-                <!-- Sección de Fechas de entrada y de salida en una fila horizontal -->
                 <EditText
                     android:id="@+id/tlfCliente"
                     android:layout_width="380dp"
@@ -96,6 +95,8 @@
                             android:fontFamily="sans-serif-light"
                             android:hint="@string/hint_fecha"
                             android:inputType="date"
+                            android:focusable="false"
+                            android:clickable="true"
                             android:padding="@dimen/small_padding"
                             android:textSize="14sp" />
                     </LinearLayout>
@@ -124,6 +125,8 @@
                             android:fontFamily="sans-serif-light"
                             android:hint="@string/hint_fecha"
                             android:inputType="date"
+                            android:focusable="false"
+                            android:clickable="true"
                             android:padding="@dimen/small_padding"
                             android:textSize="14sp" />
                     </LinearLayout>
