@@ -96,10 +96,10 @@ public class ReservasListar extends AppCompatActivity {
                     case 0: // Ordenar por Nombre
                         currentLiveData = mReservasOrdenadasPorNombre;
                         break;
-                    case 2: // Ordenar por Ocupantes
+                    case 1: // Ordenar por Ocupantes
                         currentLiveData = mReservasOrdenadasPorTlf;
                         break;
-                    case 1: // Ordenar por Precio
+                    case 2: // Ordenar por Precio
                         currentLiveData = mReservasOrdenadasPorFechaEntrada;
                         break;
                 }
