@@ -14,7 +14,6 @@ import es.unizar.eina.M27_camping.database.ParcelaReservada;
 public class ParcelaReservadaListAdapter extends ListAdapter<ParcelaReservada, ParcelaReservadaViewHolder> {
 
     private int position;
-    private List<ParcelaReservada> parcelas;
 
     private OnAumentarClickListener aumentarClickListener;
     private OnDisminuirClickListener disminuirClickListener;

@@ -81,8 +81,12 @@ public class ReservaEdit extends AppCompatActivity {
             if (TextUtils.isEmpty(mNomClienteText.getText())) {
                 setResult(RESULT_CANCELED, replyIntent);
                 Toast.makeText(getApplicationContext(), R.string.reserva_not_saved, Toast.LENGTH_LONG).show();
+            }// Si la fecha de entrada es igual o posterior a la fecha de salida
+            else if (mFechaEntradaText.getText().toString().compareTo(mFechaSalidaText.getText().toString()) >= 0) {
+                setResult(RESULT_CANCELED, replyIntent);
+                Toast.makeText(getApplicationContext(), R.string.fecha_entrada_salida_error, Toast.LENGTH_LONG).show();
             } else {
-                
+
                 replyIntent.putExtra(ReservaEdit.RESERVA_NOMCLIENTE, mNomClienteText.getText().toString());
                 replyIntent.putExtra(ReservaEdit.RESERVA_FECHAENTRADA, mFechaEntradaText.getText().toString());
                 replyIntent.putExtra(ReservaEdit.RESERVA_FECHASALIDA, mFechaSalidaText.getText().toString());

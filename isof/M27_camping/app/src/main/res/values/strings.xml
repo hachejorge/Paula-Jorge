@@ -4,6 +4,7 @@
     <string name="hint_descripcion">Descripcion de la parcela ...</string>
     <string name="button_save_parcela">Guardar Parcela</string>
     <string name="reserva_not_saved">Reserva no guardada porque no tiene el nombre del cliente</string>
+    <string name="fecha_entrada_salida_error">La fecha de entrada debe ser anterior a la fecha de salida</string>
     <string name="parcela_not_saved">Parcela no guardada porque no tiene el nombre de la parcela</string>
     <string name="add_parcela">Añadir Parcela</string>
     <string name="menu_delete">Delete Note</string>
