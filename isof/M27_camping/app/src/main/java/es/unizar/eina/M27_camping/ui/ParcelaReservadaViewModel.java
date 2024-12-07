@@ -14,16 +14,12 @@ public class ParcelaReservadaViewModel extends AndroidViewModel {
 
     private ParcelaReservadaRepository mRepository;
 
-    private final LiveData<List<ParcelaReservada>> mAllParcelasReserva;
-
     public ParcelaReservadaViewModel(Application application) {
         super(application);
         mRepository = new ParcelaReservadaRepository(application);
-        mAllParcelasReserva = mRepository.getAllParcelasReservadas();
     }
 
-    LiveData<List<ParcelaReservada>> getAllParcelasReservadas() { return mAllParcelasReserva; }
-
+    LiveData<List<ParcelaReservada>> getAllParcelasPorReserva(int id_reserva) { return mRepository.getParcelasFromReserva(id_reserva); }
 
     public void insert(ParcelaReservada parcelaReservada) { mRepository.insert(parcelaReservada); }
     public void update(ParcelaReservada parcelaReservada) { mRepository.update(parcelaReservada); }

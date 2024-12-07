@@ -21,7 +21,7 @@
 
         <!-- Nombre de la parcela reservada -->
         <TextView
-            android:id="@+id/nombre"
+            android:id="@+id/nombre_parcela_reservada"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -29,7 +29,7 @@
 
         <!-- Número de ocupantes de la parcela reservada -->
         <TextView
-            android:id="@+id/parcela_occupants"
+            android:id="@+id/parcela_occupants_reserva"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

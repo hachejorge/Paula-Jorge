@@ -33,7 +33,7 @@ public class ParcelaReservadaRepository {
         mParcelaReservadaDao = db.parcelaReservadaDao();
     }
 
-    /** Devuelve un objeto de tipo LiveData con todas las parcelas reservadas de una reserva.
+    /** Devuelve un objeto de tipo LiveData con todas las parcelas reservadas de todas las reservas.
      * Room ejecuta todas las consultas en un hilo separado.
      * El objeto LiveData notifica a los observadores cuando los datos cambian.
      */
@@ -41,6 +41,13 @@ public class ParcelaReservadaRepository {
         return mParcelaReservadaDao.getAllParcelasReservadas();
     }
 
+    /** Devuelve un objeto de tipo LiveData con todas las parcelas reservadas de una reserva concreta.
+     * Room ejecuta todas las consultas en un hilo separado.
+     * El objeto LiveData notifica a los observadores cuando los datos cambian.
+     */
+    public LiveData<List<ParcelaReservada>> getParcelasFromReserva(int id_reserva) {
+        return mParcelaReservadaDao.getAllParcelasFromReserva(id_reserva);
+    }
 
     /** Inserta una parcela nueva en la base de datos
      * @param parcelaReservada La parcela consta de: un nombre (parcela.getName()) no nulo (parcela.getName()!=null) y no vacío

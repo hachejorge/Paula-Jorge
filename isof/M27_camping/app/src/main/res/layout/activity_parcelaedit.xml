@@ -13,8 +13,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-
     <TextView android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/nombre"
@@ -46,15 +44,17 @@
     <EditText
         android:id="@+id/descripcion"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="150dp"
         android:layout_margin="@dimen/small_padding"
         android:fontFamily="sans-serif-light"
         android:hint="@string/hint_descripcion"
-        android:inputType="textAutoComplete"
+        android:inputType="textMultiLine"
+        android:gravity="top|start"
+        android:ellipsize="none"
         android:scrollbars="vertical"
         android:textSize="14sp"
         android:minHeight="@dimen/min_height"
-        android:padding="@dimen/big_padding"
+        android:padding="@dimen/small_padding"
         android:background="@drawable/edittext_background"
         android:minLines="4" />
 

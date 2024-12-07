@@ -29,8 +29,8 @@ class ParcelaReservadaViewHolder extends RecyclerView.ViewHolder {
                                        ParcelaReservadaListAdapter.OnDisminuirClickListener disminuirListener,
                                        ParcelaReservadaListAdapter.OnDeleteClickListener deleteListener) {
         super(itemView);
-        mParcelaNameView = itemView.findViewById(R.id.textView);
-        mParcelaOcuppantsView = itemView.findViewById(R.id.parcela_occupants);
+        mParcelaNameView = itemView.findViewById(R.id.nombre_parcela_reservada);
+        mParcelaOcuppantsView = itemView.findViewById(R.id.parcela_occupants_reserva);
         mAumentarIcon = itemView.findViewById(R.id.increase_icon_reserva);
         mDisminuirIcon = itemView.findViewById(R.id.decrease_icon_reserva);
         mDeleteIcon = itemView.findViewById(R.id.delete_icon_parcela_reservada);
@@ -41,12 +41,14 @@ class ParcelaReservadaViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(ParcelaReservada parcelaReservada) {
-        mParcelaNameView.setText("Parcela: " + parcelaReservada.getNomParcela());
-        mParcelaOcuppantsView.setText("Nº Ocupantes: " + parcelaReservada.getNumOcupantes());
+        mParcelaNameView.setText(parcelaReservada.getNomParcela());
+        mParcelaOcuppantsView.setText("Ocupantes: " + parcelaReservada.getNumOcupantes());
+
         // Configurar evento de clic para aumentar
-        /**mAumentarIcon.setOnClickListener(v -> {
+        mAumentarIcon.setOnClickListener(v -> {
             if (aumentarClickListener != null) {
                 aumentarClickListener.onAumentarClick(parcelaReservada);
+
             }
         });
 
@@ -62,16 +64,18 @@ class ParcelaReservadaViewHolder extends RecyclerView.ViewHolder {
             if (deleteClickListener != null) {
                 deleteClickListener.onDeleteClick(parcelaReservada);
             }
-        });**/
+        });
     }
 
-
+    public void updateOcupantes(int nOcupantes){
+        mParcelaOcuppantsView.setText("Ocupantes: " + String.valueOf(nOcupantes));
+    }
 
     static ParcelaReservadaViewHolder create(ViewGroup parent, ParcelaReservadaListAdapter.OnAumentarClickListener aumentarListener,
                                              ParcelaReservadaListAdapter.OnDisminuirClickListener disminuirListener,
                                              ParcelaReservadaListAdapter.OnDeleteClickListener deleteListener) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recyclerview_item, parent, false);
+                .inflate(R.layout.recyclerview_parcelareservada, parent, false);
         return new ParcelaReservadaViewHolder(view, aumentarListener, disminuirListener, deleteListener);
     }
 

@@ -66,12 +66,6 @@ public class ParcelasListar extends AppCompatActivity {
         mParcelasOrdenadasPorOcupantes = mParcelaViewModel.getParcelasPorOcupantes();
         mParcelasOrdenadasPorPrecio = mParcelaViewModel.getParcelasPorPrecio();
 
-
-        /**mParcelaViewModel.getAllParcelas().observe(this, parcelas -> {
-            // Update the cached copy of the notes in the adapter.
-            mAdapter.submitList(parcelas);
-        });*/
-
         // Variables y acciones para el spinner
         Spinner spinnerOrden = findViewById(R.id.spinner);
 

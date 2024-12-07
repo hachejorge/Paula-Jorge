@@ -30,7 +30,7 @@
 
                 <EditText
                     android:id="@+id/nomCliente"
-                    android:layout_width="380dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/big_padding"
                     android:background="@drawable/edittext_background"
@@ -53,7 +53,7 @@
 
                 <EditText
                     android:id="@+id/tlfCliente"
-                    android:layout_width="380dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/big_padding"
                     android:background="@drawable/edittext_background"
@@ -148,8 +148,8 @@
 
                     <Spinner
                         android:id="@+id/parcelas_disponibles"
-                        android:layout_width="380dp"
-                        android:layout_height="52dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_margin="@dimen/small_padding"
                         android:background="@drawable/edittext_background" />
 
@@ -157,7 +157,7 @@
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerview_parcelas_reservadas"
-                    android:layout_width="385dp"
+                    android:layout_width="match_parent"
                     android:layout_height="165dp"
                     android:layout_marginLeft="12dp"
                     android:layout_marginRight="12dp"

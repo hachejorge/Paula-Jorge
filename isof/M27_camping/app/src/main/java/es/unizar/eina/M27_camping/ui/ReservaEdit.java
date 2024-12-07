@@ -9,6 +9,7 @@ import android.widget.Toast;
 import android.app.DatePickerDialog;
 
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -69,10 +70,54 @@ public class ReservaEdit extends AppCompatActivity {
         // Añadir el selector de fecha para mFechaSalidaText
         mFechaSalidaText.setOnClickListener(v -> mostrarDatePicker(mFechaSalidaText));
 
-        mParcelaReservadasViewModel.getAllParcelasReservadas().observe(this, parcelaReservadas -> {
-            if (parcelaReservadas != null ) {
-                mParcelasReservadasAdapter.submitList(parcelaReservadas);
+
+        int id_reserva = getIntent().getIntExtra(ReservaEdit.RESERVA_ID, -1);
+
+        if(id_reserva != -1) {
+            mParcelaReservadasViewModel.getAllParcelasPorReserva(id_reserva).observe(this, parcelaReservadas -> {
+                if (parcelaReservadas != null ) {
+                    mParcelasReservadasAdapter.submitList(parcelaReservadas);
+                }
+            });
+        }
+
+        mParcelasReservadasAdapter.setOnAumentarClickListener(parcelaReservada -> {
+            // Hay que chequear el máximo
+        });
+
+        mParcelasReservadasAdapter.setOnDisminuirClickListener(parcelaReservada -> {
+            int ocupantesActuales = parcelaReservada.getNumOcupantes();
+            int position = getIndexOfParcela(parcelaReservada);
+            // Tiene dos o más ocupantes
+            if(ocupantesActuales > 1){
+                parcelaReservada.setNumOcupantes(ocupantesActuales - 1);
+                mParcelaReservadasViewModel.update(parcelaReservada);
+                mParcelasReservadasAdapter.updateItem(position, parcelaReservada);
+                Toast.makeText(this, "Ocupantes disminuidos a " + parcelaReservada.getNumOcupantes(), Toast.LENGTH_SHORT).show();
             }
+            // No puede tener menos de 1 ocupante
+            else{
+                Toast.makeText(this, "No se puede disminuir más, el mínimo es de un ocupante", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mParcelasReservadasAdapter.setOnDeleteClickListener(parcelaReservada -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirmar eliminación")
+                    .setMessage("¿Estás seguro de que quieres eliminar " + parcelaReservada.getNomParcela() + " de la reserva #" + parcelaReservada.getIdReservaPR() + "?")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        // Eliminar la parcela si el usuario confirma
+                        Toast.makeText(
+                                getApplicationContext(),
+                                "Borrando " + parcelaReservada.getNomParcela(),
+                                Toast.LENGTH_LONG).show();
+                        mParcelaReservadasViewModel.delete(parcelaReservada);
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // Cancelar la eliminación
+                        dialog.dismiss();
+                    })
+                    .show();
         });
 
         mSaveButton = findViewById(R.id.button_save);
@@ -142,5 +187,17 @@ public class ReservaEdit extends AppCompatActivity {
 
         datePickerDialog.show();
     }
+
+    private int getIndexOfParcela(ParcelaReservada parcelaReservada) {
+        List<ParcelaReservada> currentList = mParcelasReservadasAdapter.getCurrentList();
+        for (int i = 0; i < currentList.size(); i++) {
+            if (currentList.get(i).getIdParcelaPR() == parcelaReservada.getIdParcelaPR()) {
+                return i; // Devolver la posición si coincide el ID
+            }
+        }
+        return -1; // Si no se encuentra
+    }
+
+
 
 }

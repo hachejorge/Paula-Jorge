@@ -29,5 +29,8 @@ public interface ParcelaReservadaDao {
     @Query("SELECT * FROM parcelaReservada")
     LiveData<List<ParcelaReservada>> getAllParcelasReservadas();
 
+    @Query("SELECT * FROM parcelaReservada WHERE idReservaPR = :id_reserva")
+    LiveData<List<ParcelaReservada>> getAllParcelasFromReserva(int id_reserva);
+
 }
 

@@ -32,6 +32,10 @@ public class ParcelaReservadaListAdapter extends ListAdapter<ParcelaReservada, P
         void onDeleteClick(ParcelaReservada parcelaReservada);
     }
 
+    public void updateItem(int position, ParcelaReservada updatedParcela) {
+        submitList(getCurrentList()); // Vuelve a procesar la lista
+        notifyItemChanged(position); // Notifica cambios en la posición
+    }
 
     public void setOnAumentarClickListener(OnAumentarClickListener listener) {
         this.aumentarClickListener = listener;
