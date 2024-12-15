@@ -6,15 +6,15 @@ import (
 
 	//"log"
 	//"crypto/rand"
-	"os"
-	"path/filepath"
-	"strconv"
-	"testing"
-	"time"
-
+	//	"os"
+	//	"path/filepath"
+	"os/exec"
 	"raft/internal/comun/rpctimeout"
 	"raft/internal/despliegue"
 	"raft/internal/raft"
+	"strconv"
+	"testing"
+	"time"
 )
 
 const (
@@ -22,14 +22,14 @@ const (
 	// MAQUINA1 = "127.0.0.1"
 	// MAQUINA2 = "127.0.0.1"
 	// MAQUINA3 = "127.0.0.1"
-	MAQUINA1 = "localhost"
-	MAQUINA2 = "localhost"
-	MAQUINA3 = "localhost"
+	MAQUINA1 = "192.168.3.6"
+	MAQUINA2 = "192.168.3.7"
+	MAQUINA3 = "192.168.3.8"
 
 	//puertos
-	PUERTOREPLICA1 = "29001"
-	PUERTOREPLICA2 = "29002"
-	PUERTOREPLICA3 = "29003"
+	PUERTOREPLICA1 = "31139"
+	PUERTOREPLICA2 = "31138"
+	PUERTOREPLICA3 = "31137"
 
 	//nodos replicas
 	REPLICA1 = MAQUINA1 + ":" + PUERTOREPLICA1
@@ -45,11 +45,12 @@ const (
 	// Ubicar, en esta constante, nombre de fichero de vuestra clave privada local
 	// emparejada con la clave pública en authorized_keys de máquinas remotas
 
-	PRIVKEYFILE = "id_ed25519"
+	PRIVKEYFILE = "id_rsa"
 )
 
 // PATH de los ejecutables de modulo golang de servicio Raft
-var PATH string = filepath.Join(os.Getenv("HOME"), "tmp", "p5", "raft")
+// var PATH string = filepath.Join(os.Getenv("HOME"), "tmp", "p5", "raft")
+var PATH string = "/misc/alumnos/sd/sd2425/a872838/raft"
 
 // go run cmd/srvraft/main.go 0 127.0.0.1:29001 127.0.0.1:29002 127.0.0.1:29003
 var EXECREPLICACMD string = "cd " + PATH + "; go run " + EXECREPLICA
@@ -66,8 +67,6 @@ func TestPrimerasPruebas(t *testing.T) { // (m *testing.M) {
 	// tear down code
 	// eliminar procesos en máquinas remotas
 	defer cfg.stop()
-
-	// Run test sequence
 
 	// Test1 : No debería haber ningun primario, si SV no ha recibido aún latidos
 	t.Run("T1:soloArranqueYparada",
@@ -133,6 +132,7 @@ type configDespliegue struct {
 	numReplicas int
 	nodosRaft   []rpctimeout.HostPort
 	cr          canalResultados
+	lider       int
 }
 
 // Crear una configuracion de despliegue
@@ -144,6 +144,7 @@ func makeCfgDespliegue(t *testing.T, n int, nodosraft []string,
 	cfg.numReplicas = n
 	cfg.nodosRaft = rpctimeout.StringArrayToHostPortArray(nodosraft)
 	cfg.cr = make(canalResultados, 2000)
+	cfg.lider = -1
 
 	return cfg
 }
@@ -167,8 +168,14 @@ func (cfg *configDespliegue) soloArranqueYparadaTest1(t *testing.T) {
 
 	cfg.t = t // Actualizar la estructura de datos de tests para errores
 
+	//	cfg.stopDistributedProcesses()
+
 	// Poner en marcha replicas en remoto con un tiempo de espera incluido
-	cfg.startDistributedProcesses()
+	//cfg.startDistributedProcesses()
+	fmt.Println("Procesos levantados")
+
+	//	fmt.Println("Procesos iniciados")
+	//time.Sleep(2000 * time.Millisecond)
 
 	// Comprobar estado replica 0
 	cfg.comprobarEstadoRemoto(0, 0, false, -1)
@@ -187,29 +194,47 @@ func (cfg *configDespliegue) soloArranqueYparadaTest1(t *testing.T) {
 
 // Primer lider en marcha - 3 NODOS RAFT
 func (cfg *configDespliegue) elegirPrimerLiderTest2(t *testing.T) {
-	//t.Skip("SKIPPED ElegirPrimerLiderTest2")
+	t.Skip("SKIPPED ElegirPrimerLiderTest2")
 
 	fmt.Println(t.Name(), ".....................")
 
-	cfg.startDistributedProcesses()
+	//cfg.startDistributedProcesses()
+	err := exec.Command("./start_raft_nodes.sh").Run()
+	if err != nil {
+		t.Fatalf("Error al ejecutar el script de inicio de procesos: %v", err)
+	}
+	time.Sleep(6000 * time.Millisecond)
+
+	cfg.estadoNodo(0)
+	cfg.estadoNodo(1)
+	cfg.estadoNodo(2)
 
 	// Se ha elegido lider ?
 	fmt.Printf("Probando lider en curso\n")
 	cfg.pruebaUnLider(3)
 
 	// Parar réplicas alamcenamiento en remoto
-	cfg.stopDistributedProcesses() // Parametros
+	//cfg.stopDistributedProcesses() // Parametros
+	err = exec.Command("./stop_raft_nodes.sh").Run()
+	if err != nil {
+		t.Fatalf("Error al ejecutar el script de parada de procesos: %v", err)
+	}
 
 	fmt.Println(".............", t.Name(), "Superado")
 }
 
 // Fallo de un primer lider y reeleccion de uno nuevo - 3 NODOS RAFT
 func (cfg *configDespliegue) falloAnteriorElegirNuevoLiderTest3(t *testing.T) {
-	//t.Skip("SKIPPED FalloAnteriorElegirNuevoLiderTest3")
+	t.Skip("SKIPPED FalloAnteriorElegirNuevoLiderTest3")
 	//cfg.stopDistributedProcesses()
 	fmt.Println(t.Name(), ".....................")
 
-	cfg.startDistributedProcesses()
+	//cfg.startDistributedProcesses()
+	//err := exec.Command("./start_raft_nodes.sh").Run()
+	//if err != nil {
+	//	t.Fatalf("Error al ejecutar el script de inicio de procesos: %v", err)
+	//}
+	time.Sleep(6000 * time.Millisecond)
 
 	fmt.Printf("Lider inicial\n")
 	lider := cfg.pruebaUnLider(3)
@@ -223,7 +248,11 @@ func (cfg *configDespliegue) falloAnteriorElegirNuevoLiderTest3(t *testing.T) {
 
 	//time.Sleep(6000 * time.Millisecond)
 	fmt.Println("Relanzamos todos los procesos")
-	cfg.restartDistributedProcesses()
+	//cfg.restartDistributedProcesses()
+	err := exec.Command("./start_raft_nodes.sh").Run()
+	if err != nil {
+		t.Fatalf("Error al ejecutar el script de inicio de procesos: %v", err)
+	}
 
 	time.Sleep(6000 * time.Millisecond)
 
@@ -241,22 +270,68 @@ func (cfg *configDespliegue) falloAnteriorElegirNuevoLiderTest3(t *testing.T) {
 // 3 operaciones comprometidas con situacion estable y sin fallos - 3 NODOS RAFT
 func (cfg *configDespliegue) tresOperacionesComprometidasEstable(t *testing.T) {
 	t.Skip("SKIPPED tresOperacionesComprometidasEstable")
+	err := exec.Command("./start_raft_nodes.sh").Run()
+	if err != nil {
+		t.Fatalf("Error al ejecutar el script de inicio de procesos: %v", err)
+	}
+	//cfg.startDistributedProcesses()
+	time.Sleep(5000 * time.Millisecond)
+	lider := cfg.pruebaUnLider(3)
+	cfg.estadoNodo(lider)
+
+	cfg.checkSometerOperation(0, "escribir", "a", "primero", "ESCRITO CORRECTAMENTE")
+	cfg.checkSometerOperation(1, "escribir", "b", "segundo", "ESCRITO CORRECTAMENTE")
+	cfg.checkSometerOperation(2, "leer", "a", "", "primero")
+
+	//cfg.stopDistributedProcesses()
+	err = exec.Command("./stop_raft_nodes.sh").Run()
+	if err != nil {
+		t.Fatalf("Error al ejecutar el script de parada de procesos: %v", err)
+	}
 
 }
 
 // Se consigue acuerdo a pesar de desconexiones de seguidor -- 3 NODOS RAFT
 func (cfg *configDespliegue) AcuerdoApesarDeSeguidor(t *testing.T) {
-	t.Skip("SKIPPED AcuerdoApesarDeSeguidor")
+	//t.Skip("SKIPPED AcuerdoApesarDeSeguidor")
 
-	// A completar ???
+	err := exec.Command("./start_raft_nodes.sh").Run()
+	if err != nil {
+		t.Fatalf("Error al ejecutar el script de inicio de procesos: %v", err)
+	}
+	time.Sleep(2000 * time.Millisecond)
+
+	lider := cfg.pruebaUnLider(3)
+	cfg.estadoNodo(lider)
 
 	// Comprometer una entrada
+	cfg.checkSometerOperation(0, "escribir", "a", "primero", "ESCRITO CORRECTAMENTE")
 
 	//  Obtener un lider y, a continuación desconectar una de los nodos Raft
+	cfg.stopDistributedProcess(lider)
+	fmt.Printf("Se desconecta el lider siendo el nodo %d/n", lider)
+	time.Sleep(5000 * time.Millisecond)
+
+	lider = cfg.pruebaUnLider(3)
+	fmt.Printf("Se ha alzado como lider el nodo %d", lider)
 
 	// Comprobar varios acuerdos con una réplica desconectada
+	cfg.checkSometerOperation(1, "escribir", "b", "segundo", "ESCRITO CORRECTAMENTE")
+	cfg.checkSometerOperation(2, "leer", "a", "", "primero")
+	cfg.checkSometerOperation(3, "leer", "b", "", "segundo")
 
 	// reconectar nodo Raft previamente desconectado y comprobar varios acuerdos
+	cfg.restartDistributedProcesses()
+
+	cfg.checkSometerOperation(4, "escribir", "c", "tercero", "ESCRITO CORRECTAMENTE")
+	cfg.checkSometerOperation(5, "escribir", "d", "cuarto", "ESCRITO CORRECTAMENTE")
+	cfg.checkSometerOperation(6, "leer", "d", "", "cuarto")
+
+	//cfg.stopDistributedProcesses()
+	err = exec.Command("./stop_raft_nodes.sh").Run()
+	if err != nil {
+		t.Fatalf("Error al ejecutar el script de parada de procesos: %v", err)
+	}
 }
 
 // NO se consigue acuerdo al desconectarse mayoría de seguidores -- 3 NODOS RAFT
@@ -319,8 +394,8 @@ func (cfg *configDespliegue) pruebaUnLider(numreplicas int) int {
 		}
 
 		if len(mapaLideres) != 0 {
-
-			return mapaLideres[ultimoMandatoConLider][0] // Termina
+			cfg.lider = mapaLideres[ultimoMandatoConLider][0]
+			return cfg.lider // Termina
 
 		}
 	}
@@ -355,12 +430,12 @@ func (cfg *configDespliegue) startDistributedProcesses() {
 	}
 
 	// aproximadamente 500 ms para cada arranque por ssh en portatil
-	time.Sleep(5000 * time.Millisecond)
+	time.Sleep(2500 * time.Millisecond)
 }
 
 func (cfg *configDespliegue) restartDistributedProcesses() {
 	for i, endPoint := range cfg.nodosRaft {
-		if cfg.conectados[i] {
+		if !cfg.conectados[i] {
 			despliegue.ExecMutipleHosts(EXECREPLICACMD+
 				" "+strconv.Itoa(i)+" "+
 				rpctimeout.HostPortArrayToString(cfg.nodosRaft),
@@ -369,6 +444,7 @@ func (cfg *configDespliegue) restartDistributedProcesses() {
 			// dar tiempo para se establezcan las replicas
 			//time.Sleep(500 * time.Millisecond)
 			cfg.conectados[i] = true
+			fmt.Printf("Nodo %d ha sido relanzado", i)
 		}
 	}
 	time.Sleep(2500 * time.Millisecond)
@@ -392,7 +468,7 @@ func (cfg *configDespliegue) comprobarEstadoRemoto(idNodoDeseado int,
 	//cfg.t.Log("Estado replica 0: ", idNodo, mandato, esLider, idLider, "\n")
 
 	// Muestra el estado actual de la réplica remota con los valores reales recibidos
-	fmt.Printf("Estado real del nodo - ID: %d, Mandato: %d, Es Líder: %t, ID del Líder: %d\n",
+	fmt.Printf("Estado real del nodo     - ID: %d, Mandato: %d, Es Líder: %t, ID del Líder: %d\n",
 		idNodo, mandato, esLider, idLider)
 
 	// Muestra el estado esperado para comparación
@@ -422,5 +498,25 @@ func (cfg *configDespliegue) stopDistributedProcess(id int) {
 	var reply raft.Vacio
 
 	err := cfg.nodosRaft[id].CallTimeout("NodoRaft.ParaNodo", raft.Vacio{}, &reply, 10*time.Millisecond)
-	check.CheckError(err, "Error en la llamada RPC para un nodo")
+	check.CheckError(err, "Error en la llamada RPC ParaNodo")
+	cfg.conectados[id] = false
+
+}
+
+func (cfg *configDespliegue) someterOperation(op string, clave string, valor string) (int, bool, int, int, string) {
+	var reply raft.ResultadoRemoto
+	err := cfg.nodosRaft[cfg.lider].CallTimeout("NodoRaft.SometerOperacionNodo", raft.TipoOperacion{op, clave, valor}, &reply, 5000*time.Millisecond)
+	check.CheckError(err, "Error en la llamada RPC SometerOpertacionRaft")
+	cfg.lider = reply.IdLider
+	return reply.IdLider, reply.EsLider, reply.Mandato, reply.IndiceRegistro, reply.ValorADevolver
+}
+
+func (cfg *configDespliegue) checkSometerOperation(indiceEsperado int, op string, clave string, valor string, valorEsperado string) {
+	_, _, _, indiceObtenido, valorObtenido := cfg.someterOperation(op, clave, valor)
+
+	if indiceObtenido != indiceEsperado || valorEsperado != valorObtenido {
+		cfg.t.Fatalf("Operación no comprometida correctamente indiceObtenido %d, esperado %d, valorObtenido %s, esperado %s", indiceObtenido, indiceEsperado, valorObtenido, valorEsperado)
+	}
+	fmt.Printf("Operación comprometida correctamente indiceObtenido %d, esperado %d, valorObtenido %s, esperado %s\n", indiceObtenido, indiceEsperado, valorObtenido, valorEsperado)
+
 }

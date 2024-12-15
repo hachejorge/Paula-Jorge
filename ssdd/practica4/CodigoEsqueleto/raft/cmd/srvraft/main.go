@@ -31,7 +31,7 @@ func main() {
 	canalAplicarOperacion := make(chan raft.AplicaOperacion, 1000)
 
 	// Parte Servidor
-	nr := raft.NuevoNodo(nodos, me, make(chan raft.AplicaOperacion, 1000))
+	nr := raft.NuevoNodo(nodos, me, canalAplicarOperacion)
 	rpc.Register(nr)
 
 	go aplicarOperacion(almacen, canalAplicarOperacion)
@@ -52,8 +52,8 @@ func aplicarOperacion(almacen map[string]string, canal chan raft.AplicaOperacion
 		if op.Operacion.Operacion == "leer" {
 			op.Operacion.Valor = almacen[op.Operacion.Clave]
 		} else if op.Operacion.Operacion == "escribir" {
-			almacen[op.Operacion.Clave] = op.Operacion.Clave
-			op.Operacion.Valor = "OKEY MACKEY"
+			almacen[op.Operacion.Clave] = op.Operacion.Valor
+			op.Operacion.Valor = "ESCRITO CORRECTAMENTE"
 		}
 		canal <- op
 	}

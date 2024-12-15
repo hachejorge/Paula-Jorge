@@ -95,7 +95,7 @@ type NodoRaft struct {
 	Rol           string // Rol del nodo, ("LEADER", "FOLLOWER", "CANDIDATE")
 
 	CommitIndex int // Índice de la última entrada comprometida (commited)
-	LastAplied  int // Índice de la última entrada aplicada ??
+	LastAplied  int // Índice de la última entrada aplicada
 
 	NextIndex  []int // Índice para cada servidor del log que tenemos que enviarle
 	MatchIndex []int // Índice del log máximo que este replicado en esa máquina
@@ -141,6 +141,18 @@ func NuevoNodo(nodos []rpctimeout.HostPort, yo int,
 	nr.VotedFor = -1
 	nr.VotesReceived = 0
 	nr.ACKsCommit = 0
+	nr.CommitIndex = -1
+	nr.LastAplied = -1
+
+	nr.NextIndex = make([]int, len(nr.Nodos))
+	nr.MatchIndex = make([]int, len(nr.Nodos))
+
+	for i := range nr.Nodos {
+		nr.NextIndex[i] = 0
+		nr.MatchIndex[i] = -1
+	}
+
+	nr.Logs = []Entry{}
 
 	nr.ApplyOp = canalAplicarOperacion
 	nr.Follower = make(chan bool)
@@ -226,7 +238,7 @@ func (nr *NodoRaft) someterOperacion(operacion TipoOperacion) (int, int,
 
 	nr.Mux.Lock()
 	indice := -1
-	mandato := -1
+	mandato := nr.CurrentTerm
 	EsLider := nr.Yo == nr.IdLider
 	idLider := nr.IdLider
 	valorADevolver := ""
@@ -238,7 +250,11 @@ func (nr *NodoRaft) someterOperacion(operacion TipoOperacion) (int, int,
 		nr.Logs = append(nr.Logs, entry)
 		nr.Mux.Unlock()
 		// Esperar a recibir confirmación de commit
-		<-nr.OpCommited
+		op := <-nr.OpCommited
+		indice = nr.LastAplied
+		valorADevolver = op
+		nr.Logger.Printf("someterOperacion : Operación comprometida")
+
 	} else {
 		nr.Mux.Unlock()
 	}
@@ -279,7 +295,7 @@ type ResultadoRemoto struct {
 	EstadoParcial
 }
 
-func (nr *NodoRaft) SometerOperacionRaft(operacion TipoOperacion, reply *ResultadoRemoto) error {
+func (nr *NodoRaft) SometerOperacionNodo(operacion TipoOperacion, reply *ResultadoRemoto) error {
 	reply.IndiceRegistro, reply.Mandato, reply.EsLider,
 		reply.IdLider, reply.ValorADevolver = nr.someterOperacion(operacion)
 
@@ -314,16 +330,19 @@ type RespuestaPeticionVoto struct {
 // Función que devuelve true si el nodo solicitante tiene logs más avanzados que el nodo nr
 func isBetterLeader(nr *NodoRaft, request *ArgsPeticionVoto) bool {
 	isBetter := false
-	// Si el mantado de la última entrada del log del nodo soliciante es mayor que el nuestro
-	// se concede el voto
-	if nr.Logs[len(nr.Logs)-1].Term < request.LastLogTerm {
-		isBetter = true
 
-		// Si los mandatos son iguales se compara según la cantidad de logs almacenados
-	} else if nr.Logs[len(nr.Logs)-1].Term == request.LastLogTerm &&
-		request.LastLogIndex >= len(nr.Logs)-1 {
+	if len(nr.Logs) > 0 {
+		// Si el mantado de la última entrada del log del nodo soliciante es mayor que el nuestro
+		// se concede el voto
+		if nr.Logs[len(nr.Logs)-1].Term < request.LastLogTerm {
+			isBetter = true
 
-		isBetter = true
+			// Si los mandatos son iguales se compara según la cantidad de logs almacenados
+		} else if nr.Logs[len(nr.Logs)-1].Term == request.LastLogTerm &&
+			request.LastLogIndex >= len(nr.Logs)-1 {
+
+			isBetter = true
+		}
 	}
 
 	return isBetter
@@ -332,9 +351,12 @@ func isBetterLeader(nr *NodoRaft, request *ArgsPeticionVoto) bool {
 // Metodo para RPC PedirVoto
 func (nr *NodoRaft) PedirVoto(peticion *ArgsPeticionVoto,
 	reply *RespuestaPeticionVoto) error {
+	nr.Logger.Printf("PedirVoto: Recibido solicitud de %d para mandato %d (mi mandato: %d)",
+		peticion.CandidateID, peticion.CandidateTerm, nr.CurrentTerm)
 
 	if peticion.CandidateTerm > nr.CurrentTerm { // Si me llega un mandato mayor al mío le doy el voto
-
+		nr.Logger.Printf("PedirVoto: Actualizando mandato a %d y votando por %d",
+			peticion.CandidateTerm, peticion.CandidateID)
 		if len(nr.Logs) == 0 || isBetterLeader(nr, peticion) {
 			reply.Term = peticion.CandidateTerm
 			reply.VoteGranted = true
@@ -352,6 +374,8 @@ func (nr *NodoRaft) PedirVoto(peticion *ArgsPeticionVoto,
 		}
 
 	} else { // Si llega un mandato menor al mío no le doy el voto
+		nr.Logger.Printf("PedirVoto: Rechazando solicitud de %d (mandato solicitado: %d, mi mandato: %d)",
+			peticion.CandidateID, peticion.CandidateTerm, nr.CurrentTerm)
 		reply.Term = nr.CurrentTerm
 		reply.VoteGranted = false
 	}
@@ -366,7 +390,7 @@ type ArgAppendEntries struct {
 	PrevLogIndex int
 	PrevLogTerm  int
 
-	entries Entry // Vector para la eficiencia ?
+	Entries Entry // Vector para la eficiencia ?
 
 	LeaderCommit int
 }
@@ -380,7 +404,7 @@ func isLoggerUpdated(nr *NodoRaft, request *ArgAppendEntries) bool {
 	// Compruebo si mi logger coincide con el dado
 	if len(nr.Logs)-1 < request.PrevLogIndex { // Log desactualizado
 		return false
-	} else if nr.Logs[request.PrevLogIndex].Term < request.PrevLogTerm { // Log desactualizado
+	} else if request.PrevLogIndex < len(nr.Logs) && nr.Logs[request.PrevLogIndex].Term < request.PrevLogTerm { // Log desactualizado
 		return false
 	} else {
 		return true
@@ -399,53 +423,63 @@ func min(a int, b int) int {
 func (nr *NodoRaft) AppendEntries(args *ArgAppendEntries,
 	results *Results) error {
 	nr.Mux.Lock()
+
+	nr.Logger.Printf("AppendEntries: Recibido de líder %d en mandato %d (mi mandato: %d)",
+		args.LeaderID, args.Term, nr.CurrentTerm)
+
 	if args.Term < nr.CurrentTerm { // Heartbeat atrasado
 		results.Term = nr.CurrentTerm
 		results.Success = false
-	} else if args.Term == nr.CurrentTerm { // Recibo heartbeat en mi mismo periodo
+	} else if args.Term >= nr.CurrentTerm { // Recibo heartbeat en mi mismo periodo o mayor
 		nr.IdLider = args.LeaderID
 		results.Term = args.Term
-		// Si tengo mis logs vacíos
-		if len(nr.Logs) == 0 {
-			// Y me llega un entry no nulo se añade al logger
-			if args.entries != (Entry{}) {
-				nr.Logs = append(nr.Logs, args.entries)
-			}
-			results.Success = true
-			// Si no tengo mi logger vacío
+
+		// Heartbeat simple
+		if args.Entries == (Entry{}) {
+			results.Success = false
+
+			// Recibido entry
 		} else {
-			results.Success = isLoggerUpdated(nr, args)
-			// Mi logger coincide para PrevLogIndex en mandato
-			if results.Success {
-				// Y me llega un entry no nulo se añade al logger
-				if args.entries != (Entry{}) {
+			nr.Logger.Printf("AppendEntries: Recibida entrada: %+v", args.Entries)
+			// Logger vacío
+			if len(nr.Logs) == 0 {
+				nr.Logger.Printf("AppendEntries: Logger previo vacío y recibo el primer log")
+				nr.Logs = append(nr.Logs, args.Entries)
+				results.Success = true
+
+				// Si no tengo mi logger vacío
+			} else {
+				results.Success = isLoggerUpdated(nr, args)
+				// Mi logger coincide para PrevLogIndex en mandato
+				if results.Success {
+					nr.Logger.Printf("AppendEntries: Logger correcto, añado nueva entrada")
 					// Me quedo con los logs desde el inicio hasta el indice actualizado
 					nr.Logs = nr.Logs[0 : args.PrevLogIndex+1]
 					// Añado la entrada
-					nr.Logs = append(nr.Logs, args.entries)
+					nr.Logs = append(nr.Logs, args.Entries)
+
+					nr.Logger.Printf("AppendEntries: Éxito al añadir entrada de líder %d", args.LeaderID)
+				} else {
+					nr.Logger.Printf("AppendEntries: Fallo logger desactualizado, error al añadir nueva entrada")
 				}
+
 			}
 			// Actualizo el último commit index si es necesario
 			if args.LeaderCommit > nr.CommitIndex {
 				nr.CommitIndex = min(args.LeaderCommit, len(nr.Logs)-1)
 			}
-		}
-		nr.Heartbeat <- true
-	} else { // Recibo heartbeat de un periodo futuro
-		nr.IdLider = args.LeaderID
-		nr.CurrentTerm = args.Term
-		results.Term = args.Term
-		if nr.Rol == "FOLLOWER" {
-			// Actualizo el último commit index si es necesario
-			if args.LeaderCommit > nr.CommitIndex {
-				nr.CommitIndex = min(args.LeaderCommit, len(nr.Logs)-1)
-			}
-			nr.Heartbeat <- true
-		} else { // Si es líder o candidato vuelve a ser follower
-			nr.Follower <- true
 		}
 
-		results.Success = false
+		if args.Term > nr.CurrentTerm { // Recibo heartbeat de un periodo futuro
+			nr.CurrentTerm = args.Term
+			if nr.Rol == "LEADER" || nr.Rol == "CANDIDATE" { // Si es líder o candidato vuelve a ser follower
+				nr.Follower <- true
+			} else {
+				nr.Heartbeat <- true
+			}
+		} else {
+			nr.Heartbeat <- true
+		}
 	}
 	nr.Mux.Unlock()
 	return nil
@@ -502,6 +536,8 @@ func (nr *NodoRaft) enviarPeticionVoto(nodo int, args *ArgsPeticionVoto,
 			nr.VotesReceived++
 			nr.Mux.Unlock()
 			if nr.VotesReceived > len(nr.Nodos)/2 {
+				nr.Logger.Printf("Nodo %d ha ganado la elección y es ahora el líder para mandato %d", nr.Yo, nr.CurrentTerm)
+
 				nr.Leader <- true
 			}
 		}
@@ -525,9 +561,12 @@ func (nr *NodoRaft) sendAppendEntry(nodo int, args *ArgAppendEntries,
 			nr.IdLider = -1
 			nr.Follower <- true
 			nr.Mux.Unlock()
+			nr.Logger.Printf("sendAppendEntry: Heartbeat enviado a un nodo con mandato superior")
 		}
 		// PARTE DE LOS LOGS
 		if results.Success { // Si se recibe confirmación del logger
+			nr.Logger.Printf("sendAppendEntry: Coincidimos en logs hasta el indice %d con el nodo %d", nr.NextIndex[nodo], nodo)
+
 			nr.MatchIndex[nodo] = nr.NextIndex[nodo]
 			nr.NextIndex[nodo]++
 			nr.Mux.Lock()
@@ -537,12 +576,15 @@ func (nr *NodoRaft) sendAppendEntry(nodo int, args *ArgAppendEntries,
 				if nr.ACKsCommit > len(nr.Nodos)/2 {
 					nr.CommitIndex++
 					nr.ACKsCommit = 0
+					nr.Logger.Printf("sendAppendEntry: Recibidas ACK's necesario para confirmar el índice %d", nr.CommitIndex)
 				}
 			}
 			nr.Mux.Unlock()
 			// El logger del nodo solicitado es inconsistente se intenta con la Entry previa
 		} else {
-			nr.NextIndex[nodo]--
+			if args.Entries != (Entry{}) {
+				nr.NextIndex[nodo]--
+			}
 		}
 		return true
 	}
@@ -550,8 +592,11 @@ func (nr *NodoRaft) sendAppendEntry(nodo int, args *ArgAppendEntries,
 
 func requestVotes(nr *NodoRaft) {
 	var reply RespuestaPeticionVoto
+	nr.Logger.Printf("requestVotes: Nodo %d comienza solicitud de votos para mandato %d", nr.Yo, nr.CurrentTerm)
+
 	for i := 0; i < len(nr.Nodos); i++ {
 		if i != nr.Yo {
+			nr.Logger.Printf("requestVotes: Enviando solicitud de voto a nodo %d", i)
 			var lastLogIndex int
 			var lastLogTerm int
 			if len(nr.Logs) == 0 { // Si todavía no tiene Entries en el logger no manda ninguno
@@ -567,22 +612,54 @@ func requestVotes(nr *NodoRaft) {
 }
 
 func sendAppendEntries(nr *NodoRaft) {
-	var reply Results
+	nr.Logger.Printf("sendAppendEntries: Nodo %d (líder) enviando entradas a seguidores", nr.Yo)
+
 	for i := 0; i < len(nr.Nodos); i++ {
-		if i != nr.Yo {
-			nextIndex := nr.NextIndex[i]
-			entry := Entry{nextIndex, nr.Logs[nextIndex].Term, nr.Logs[nextIndex].Op}
-			// Asumimos que es el primer log que llega al nodo i
-			prevLogIndex := -1
-			prevLogTerm := 0
-			// No es el primer log que tiene el nodo i
-			if nextIndex != 0 {
-				prevLogIndex = nextIndex - 1
-				prevLogTerm = nr.Logs[prevLogIndex].Term
-			}
-			go nr.sendAppendEntry(i, &ArgAppendEntries{nr.CurrentTerm, nr.Yo, prevLogIndex,
-				prevLogTerm, entry, nr.CommitIndex}, &reply)
+		// Evita enviar a sí mismo
+		if i == nr.Yo {
+			continue
 		}
+
+		nr.Logger.Printf("sendAppendEntries: Preparando envío a nodo %d", i)
+
+		// Determina el índice de la siguiente entrada a enviar
+		nextIndex := nr.NextIndex[i]
+		var entry Entry
+
+		// Si nextIndex está dentro del rango del log, selecciona las entradas
+		if nextIndex < len(nr.Logs) {
+			entry = nr.Logs[nextIndex]
+		} else {
+			nr.Logger.Printf("sendAppendEntries: Índice nextIndex %d fuera de rango, enviando heartbeat", nextIndex)
+			entry = Entry{} // Entrada vacía para indicar heartbeat
+		}
+
+		// Determina el índice y el término del log previo
+		prevLogIndex := nextIndex - 1
+		prevLogTerm := 0
+		if prevLogIndex >= 0 && prevLogIndex < len(nr.Logs) {
+			prevLogTerm = nr.Logs[prevLogIndex].Term
+		}
+
+		// Construye los argumentos para AppendEntries
+		args := ArgAppendEntries{
+			Term:         nr.CurrentTerm,
+			LeaderID:     nr.Yo,
+			PrevLogIndex: prevLogIndex,
+			PrevLogTerm:  prevLogTerm,
+			Entries:      entry,
+			LeaderCommit: nr.CommitIndex,
+		}
+
+		// Log de depuración
+		nr.Logger.Printf("sendAppendEntries: Nodo %d enviando AppendEntries a nodo %d (PrevLogIndex=%d, PrevLogTerm=%d, LeaderCommit=%d)",
+			nr.Yo, i, prevLogIndex, prevLogTerm, nr.CommitIndex)
+
+		// Resultado para recibir la respuesta del nodo seguidor
+		var reply Results
+
+		// Envía AppendEntries en una goroutine
+		go nr.sendAppendEntry(i, &args, &reply)
 	}
 }
 
@@ -603,8 +680,10 @@ func raftHandler(nr *NodoRaft) {
 	for {
 		if nr.CommitIndex > nr.LastAplied {
 			nr.LastAplied++
+
 			op := AplicaOperacion{nr.LastAplied, nr.Logs[nr.LastAplied].Op}
 			nr.ApplyOp <- op
+			op = <-nr.ApplyOp
 			nr.OpCommited <- op.Operacion.Valor
 		}
 
@@ -633,6 +712,7 @@ func raftHandler(nr *NodoRaft) {
 					nr.LastAplied++
 					op := AplicaOperacion{nr.LastAplied, nr.Logs[nr.LastAplied].Op}
 					nr.ApplyOp <- op
+					op = <-nr.ApplyOp
 					nr.OpCommited <- op.Operacion.Valor
 				}
 			}
