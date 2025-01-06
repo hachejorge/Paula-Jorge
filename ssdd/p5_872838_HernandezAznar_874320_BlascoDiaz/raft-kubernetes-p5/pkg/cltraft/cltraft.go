@@ -49,6 +49,7 @@ func main() {
 
 		// Asegurarse de que la operación se realice solo cuando haya un líder
 		for reply.IdLider == -1 {
+			fmt.Printf("Operación 1 sometida a 0\n")
 			err = nodos[0].CallTimeout("NodoRaft.SometerOperacionNodo", operacion1, &reply, 5000*time.Millisecond)
 			check.CheckError(err, "SometerOperacion")
 		}
