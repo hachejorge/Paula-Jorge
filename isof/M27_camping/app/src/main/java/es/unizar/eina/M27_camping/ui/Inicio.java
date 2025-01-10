@@ -23,7 +23,7 @@ public class Inicio extends AppCompatActivity {
         findViewById(R.id.button_parcelas_listar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Inicio.this, ParcelaReservadaListar.class);
+                Intent intent = new Intent(Inicio.this, ParcelasListar.class);
                 startActivity(intent);
             }
         });

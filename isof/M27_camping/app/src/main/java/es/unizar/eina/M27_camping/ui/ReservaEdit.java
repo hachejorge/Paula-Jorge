@@ -20,12 +20,15 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import es.unizar.eina.M27_camping.R;
+import es.unizar.eina.M27_camping.database.Parcela;
 import es.unizar.eina.M27_camping.database.ParcelaReservada;
-import es.unizar.eina.M27_camping.database.ParcelaReservadaDao;
 
 /** Pantalla utilizada para la creación o edición de una reserva */
 public class ReservaEdit extends AppCompatActivity {
@@ -35,6 +38,7 @@ public class ReservaEdit extends AppCompatActivity {
     public static final String RESERVA_FECHAENTRADA = "fechaEntrada";
     public static final String RESERVA_FECHASALIDA = "fechaSalida";
     public static final String RESERVA_ID = "idReserva";
+    public static final String RESERVA_PRECIO = "precioTotal";
 
     private EditText mNomClienteText;
 
@@ -53,9 +57,6 @@ public class ReservaEdit extends AppCompatActivity {
     private ParcelaViewModel mParcelaViewModel;
     private RecyclerView mRecyclerViewParcelasReservadas;
     private ParcelaReservadaListAdapter mParcelasReservadasAdapter;
-
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,11 +96,36 @@ public class ReservaEdit extends AppCompatActivity {
         //SPINNER PARCELA RESERVADA
         Spinner spinnerReserva = findViewById(R.id.parcelas_disponibles);
 
-        String [] opcionesSpinner = {"Parcela1", "Parcela2", "Parcela3"};
+        // Observar las parcelas disponibles y las reservadas
+        mParcelaViewModel.getParcelasPorOcupantes().observe(this, parcelasDisponibles -> {
+            mParcelaReservadasViewModel.getAllParcelasPorReserva(id_reserva).observe(this, parcelasReservadas -> {
+                if (parcelasDisponibles != null && !parcelasDisponibles.isEmpty()) {
+                    // Filtrar las parcelas que no están reservadas
+                    List<String> nombresParcelasFiltradas = new ArrayList<>();
+                    List<Integer> idsParcelasReservadas = new ArrayList<>();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opcionesSpinner);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerReserva.setAdapter(adapter);
+                    // Obtener los IDs de las parcelas reservadas
+                    for (ParcelaReservada parcelaReservada : parcelasReservadas) {
+                        idsParcelasReservadas.add(parcelaReservada.getIdParcelaPR());
+                    }
+
+                    // Filtrar las parcelas disponibles
+                    for (Parcela parcela : parcelasDisponibles) {
+                        if (!idsParcelasReservadas.contains(parcela.getIdParcela())) {
+                            nombresParcelasFiltradas.add(parcela.getNombre());
+                        }
+                    }
+
+                    // Configurar el adaptador del Spinner con las parcelas filtradas
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, nombresParcelasFiltradas);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinnerReserva.setAdapter(adapter);
+                } else {
+                    Toast.makeText(this, "No hay parcelas disponibles", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
 
         spinnerReserva.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -121,7 +147,7 @@ public class ReservaEdit extends AppCompatActivity {
             String nomParcela = (String) spinnerReserva.getSelectedItem();
             mParcelaViewModel.getParcelaPorNombre(nomParcela).observe(this, parcela -> {
                 ParcelaReservada pr = new ParcelaReservada(id_reserva,
-                        parcela.getIdParcela(), nomParcela, 0);
+                        parcela.getIdParcela(), nomParcela, 1);
                 mParcelaReservadasViewModel.insert(pr);
 
                 mParcelaReservadasViewModel.getAllParcelasPorReserva(id_reserva).observe(this, parcelaReservadas -> {
@@ -197,34 +223,64 @@ public class ReservaEdit extends AppCompatActivity {
         mSaveButton = findViewById(R.id.button_save);
         mSaveButton.setOnClickListener(view -> {
             Intent replyIntent = new Intent();
+
+            // Validación del nombre del cliente
             if (TextUtils.isEmpty(mNomClienteText.getText())) {
                 setResult(RESULT_CANCELED, replyIntent);
                 Toast.makeText(getApplicationContext(), R.string.reserva_not_saved, Toast.LENGTH_LONG).show();
-            }// Si la fecha de entrada es igual o posterior a la fecha de salida
-            else if (mFechaEntradaText.getText().toString().compareTo(mFechaSalidaText.getText().toString()) >= 0) {
+                return;
+            }
+
+            // Validación de fechas
+            if (mFechaEntradaText.getText().toString().compareTo(mFechaSalidaText.getText().toString()) >= 0) {
                 setResult(RESULT_CANCELED, replyIntent);
                 Toast.makeText(getApplicationContext(), R.string.fecha_entrada_salida_error, Toast.LENGTH_LONG).show();
-            } else {
-
-                replyIntent.putExtra(ReservaEdit.RESERVA_NOMCLIENTE, mNomClienteText.getText().toString());
-                replyIntent.putExtra(ReservaEdit.RESERVA_FECHAENTRADA, mFechaEntradaText.getText().toString());
-                replyIntent.putExtra(ReservaEdit.RESERVA_FECHASALIDA, mFechaSalidaText.getText().toString());
-
-                // Convertir Telefono a un entero
-                try {
-                    int numTlf = Integer.parseInt(mTlfClienteText.getText().toString());
-                    replyIntent.putExtra(ReservaEdit.RESERVA_TLFCLIENTE, numTlf);
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getApplicationContext(), "Número de teléfono inválido", Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-                if (mRowId!=null) {
-                    replyIntent.putExtra(ReservaEdit.RESERVA_ID, mRowId.intValue());
-                }
-                setResult(RESULT_OK, replyIntent);
+                return;
             }
-            finish();
+
+            // Manejo de precio total en un hilo de fondo
+            Executors.newSingleThreadExecutor().execute(() -> {
+                float totalPrice = 0.0f;
+
+                // Obtiene las parcelas reservadas
+                List<ParcelaReservada> parcelaReservadas = mParcelaReservadasViewModel.getListaParcelasPorReserva(id_reserva);
+                for (ParcelaReservada pr : parcelaReservadas) {
+                    Parcela parcela = mParcelaViewModel.getParcelaPorId(pr.getIdParcelaPR());
+                    if (parcela != null) {
+                        totalPrice += parcela.getPrecioPorPersona() * pr.getNumOcupantes();
+                    }
+                }
+
+                // Regresa al hilo principal para manejar los datos y finalizar la actividad
+                float finalTotalPrice = totalPrice;
+                runOnUiThread(() -> {
+                    replyIntent.putExtra(ReservaEdit.RESERVA_PRECIO, finalTotalPrice);
+                    replyIntent.putExtra(ReservaEdit.RESERVA_NOMCLIENTE, mNomClienteText.getText().toString());
+                    replyIntent.putExtra(ReservaEdit.RESERVA_FECHAENTRADA, mFechaEntradaText.getText().toString());
+                    replyIntent.putExtra(ReservaEdit.RESERVA_FECHASALIDA, mFechaSalidaText.getText().toString());
+
+                    // Validación del número de teléfono
+                    try {
+                        int numTlf = Integer.parseInt(mTlfClienteText.getText().toString());
+                        replyIntent.putExtra(ReservaEdit.RESERVA_TLFCLIENTE, numTlf);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(getApplicationContext(), "Número de teléfono inválido", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if (mRowId != null) {
+                        replyIntent.putExtra(ReservaEdit.RESERVA_ID, mRowId.intValue());
+                    }
+
+                    // Ejecutar la actualización en segundo plano
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        mParcelaReservadasViewModel.actualizarReservaPendiente();
+                    });
+
+                    setResult(RESULT_OK, replyIntent);
+                    finish();
+                });
+            });
         });
 
         populateFields();
@@ -271,7 +327,5 @@ public class ReservaEdit extends AppCompatActivity {
         }
         return -1; // Si no se encuentra
     }
-
-
 
 }

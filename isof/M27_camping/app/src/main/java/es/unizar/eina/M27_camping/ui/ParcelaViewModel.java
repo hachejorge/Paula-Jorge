@@ -38,7 +38,9 @@ public class ParcelaViewModel extends AndroidViewModel {
         return mRepository.getAllParcelasPorPrecio();
     }
 
-
+    public Parcela getParcelaPorId(int id) {
+        return mRepository.getParcelaPorId(id);
+    }
 
     public void insert(Parcela parcela) { mRepository.insert(parcela); }
 

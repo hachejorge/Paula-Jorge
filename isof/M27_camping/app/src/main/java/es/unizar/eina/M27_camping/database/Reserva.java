@@ -30,14 +30,18 @@ public class Reserva {
     @ColumnInfo(name = "fechaSalida")
     private String fechaSalida;
 
+    @NonNull
+    @ColumnInfo(name = "precioTotal")
+    private Float precioTotal;
+
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-
-    public Reserva(@NonNull String nomCliente, Integer tlfCliente, String fechaEntrada, String fechaSalida) {
+    public Reserva(@NonNull String nomCliente, Integer tlfCliente, String fechaEntrada, String fechaSalida, Float precioTotal) {
         this.nomCliente = nomCliente;
         this.tlfCliente = tlfCliente;
         this.fechaEntrada = fechaEntrada;
         this.fechaSalida = fechaSalida;
+        this.precioTotal = precioTotal;
     }
 
     /** Devuelve el identificador de la reserva */
@@ -68,24 +72,6 @@ public class Reserva {
         return this.fechaSalida;
     }
 
-    /** Devuelve la fecha de entrada como Date */
-    /**public Date getFechaEntrada() {
-        try {
-            return fechaEntrada != null ? dateFormat.parse(fechaEntrada) : null;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }*/
-
-    /** Devuelve la fecha de salida como Date */
-    /**public Date getFechaSalida() {
-        try {
-            return fechaSalida != null ? dateFormat.parse(fechaSalida) : null;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }*/
-
+    /** Devuelve el precio total a pagar por la reserva **/
+    public Float getPrecioTotal() {return this.precioTotal; }
 }

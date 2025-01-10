@@ -144,7 +144,7 @@ public class ReservasListar extends AppCompatActivity {
                         + "Le confirmamos su reserva con los siguientes detalles:\n"
                         + "Fecha de entrada: " + reserva.getFechaEntrada() + "\n"
                         + "Fecha de salida: " + reserva.getFechaSalida() + "\n"
-                        + "Precio total: \n"
+                        + "Precio total: " + reserva.getPrecioTotal() + "\n"
                         + "Gracias por elegirnos, nos vemos pronto!"));
 
         // It doesn't affect if we comment the following instruction
@@ -205,7 +205,8 @@ public class ReservasListar extends AppCompatActivity {
                         Reserva reserva = new Reserva(extras.getString(ReservaEdit.RESERVA_NOMCLIENTE),
                                                       extras.getInt(ReservaEdit.RESERVA_TLFCLIENTE),
                                                       extras.getString(ReservaEdit.RESERVA_FECHAENTRADA),
-                                                      extras.getString(ReservaEdit.RESERVA_FECHASALIDA));
+                                                      extras.getString(ReservaEdit.RESERVA_FECHASALIDA),
+                                                      extras.getFloat(ReservaEdit.RESERVA_PRECIO));
                         executable.process(extras, reserva);
                     }
                 });

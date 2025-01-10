@@ -52,6 +52,20 @@ public class ParcelaReservadaRepository {
     }
 
     /**
+     * Devuelve una lista con todas las parcelasReservadas que coincidan con el id de una reserva concreta
+     */
+    public List<ParcelaReservada> getListaParcelasFromReserva(int id_reserva) {
+        return mParcelaReservadaDao.getListaParcelasFromReserva(id_reserva);
+    }
+
+    /**
+     * Actualiza las dependencias de la reserva con los id's correspondientes
+     */
+    public void actualizarReservasPendientes(){
+        mParcelaReservadaDao.actualizarReservasPendientes();
+    }
+
+    /**
      *
      */
     public int getMaxOcupParcelaR(int id_parcelaR) {
@@ -117,5 +131,10 @@ public class ParcelaReservadaRepository {
             Log.d("ParcelaReservadaRepository", ex.getClass().getSimpleName() + ex.getMessage());
             return -1;
         }
+    }
+
+    public void deleteByParcelaId(int idParcela) {
+        Log.d("ParcelaReservadaRepository", "deleteByParcelaId called with id: " + idParcela);
+        mParcelaReservadaDao.deleteByParcelaId(idParcela);
     }
 }

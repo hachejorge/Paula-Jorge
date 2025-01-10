@@ -19,7 +19,7 @@
         </activity>
 
         <activity
-            android:name=".ui.ParcelaReservadaListar"
+            android:name=".ui.ParcelasListar"
             android:exported="false"
             android:windowSoftInputMode="adjustResize">
         </activity>

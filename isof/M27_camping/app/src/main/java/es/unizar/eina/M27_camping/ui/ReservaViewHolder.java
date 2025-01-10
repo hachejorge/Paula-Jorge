@@ -19,7 +19,7 @@ class ReservaViewHolder extends RecyclerView.ViewHolder {
     private final TextView mReservaTlf;
     private final TextView mReservaFechaEntrada;
     private final TextView mReservaFechaSalida;
-    //private final TextView mReservaPrecioTotal;
+    private final TextView mReservaPrecioTotal;
 
     private final ImageView mEditIcon;
     private final ImageView mDeleteIcon;
@@ -39,15 +39,13 @@ class ReservaViewHolder extends RecyclerView.ViewHolder {
         mReservaTlf = itemView.findViewById(R.id.tlfCliente);
         mReservaFechaEntrada = itemView.findViewById(R.id.fEntrada);
         mReservaFechaSalida = itemView.findViewById(R.id.fSalida);
-        //mReservaPrecioTotal = itemView.findViewById(R.id.precioTotal);
+        mReservaPrecioTotal = itemView.findViewById(R.id.precioTotal);
         mEditIcon = itemView.findViewById(R.id.edit_icon_reserva);
         mDeleteIcon = itemView.findViewById(R.id.delete_icon_reserva);
         mSendIcon = itemView.findViewById(R.id.send_icon_reserva);
         this.editClickListener = editListener;
         this.deleteClickListener = deleteListener;
         this.sendClickListener = sendListener;
-
-
     }
 
     public void bind(Reserva reserva) {
@@ -56,7 +54,7 @@ class ReservaViewHolder extends RecyclerView.ViewHolder {
         mReservaTlf.setText("Nº Tlf: " + reserva.getTlfCliente());
         mReservaFechaEntrada.setText("F. Entrada: " + reserva.getFechaEntrada());
         mReservaFechaSalida.setText("F. Salida: " + reserva.getFechaSalida());
-        //mReservaPrecioTotal.setText(reserva.get);
+        mReservaPrecioTotal.setText("Precio: " + reserva.getPrecioTotal() + "€");
 
         mEditIcon.setOnClickListener(v -> {
             if (editClickListener != null) {

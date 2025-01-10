@@ -33,6 +33,7 @@ import java.util.List;
  * */
 public class ParcelasListar extends AppCompatActivity {
     private ParcelaViewModel mParcelaViewModel;
+    private ParcelaReservadaViewModel mParcelasRervadasViewModel;
 
     static final int INSERT_ID = Menu.FIRST;
     static final int DELETE_ID = Menu.FIRST + 1;
@@ -61,6 +62,7 @@ public class ParcelasListar extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mParcelaViewModel = new ViewModelProvider(this).get(ParcelaViewModel.class);
+        mParcelasRervadasViewModel = new ViewModelProvider(this).get(ParcelaReservadaViewModel.class);
 
         mParcelasOrdenadasPorNombre = mParcelaViewModel.getParcelasPorNombre();
         mParcelasOrdenadasPorOcupantes = mParcelaViewModel.getParcelasPorOcupantes();
@@ -116,13 +118,16 @@ public class ParcelasListar extends AppCompatActivity {
             // Crear un diálogo de alerta para confirmar la eliminación
             new AlertDialog.Builder(this)
                     .setTitle("Confirmar eliminación")
-                    .setMessage("¿Estás seguro de que quieres eliminar " + parcela.getNombre() + "?")
+                    .setMessage("¿Estás seguro de eliminar " + parcela.getNombre() + "? Se eliminará también de las reservas en las que estuviera")
                     .setPositiveButton("Sí", (dialog, which) -> {
                         // Eliminar la parcela si el usuario confirma
                         Toast.makeText(
                                 getApplicationContext(),
                                 "Borrando " + parcela.getNombre(),
                                 Toast.LENGTH_LONG).show();
+
+                        mParcelasRervadasViewModel.deleteByParcelaId(parcela.getIdParcela());
+
                         mParcelaViewModel.delete(parcela);
                     })
                     .setNegativeButton("No", (dialog, which) -> {
@@ -175,14 +180,14 @@ public class ParcelasListar extends AppCompatActivity {
         mStartCreateNote.launch(new Intent(this, ParcelaEdit.class));
     }
 
-    ActivityResultLauncher<Intent> mStartCreateNote = newActivityResultLauncher(new ExecuteActivityResultParcelaReservada() {
+    ActivityResultLauncher<Intent> mStartCreateNote = newActivityResultLauncher(new ExecuteActivityResultParcelas() {
         @Override
         public void process(Bundle extras, Parcela parcela) {
             mParcelaViewModel.insert(parcela);
         }
     });
 
-    ActivityResultLauncher<Intent> newActivityResultLauncher(ExecuteActivityResultParcelaReservada executable) {
+    ActivityResultLauncher<Intent> newActivityResultLauncher(ExecuteActivityResultParcelas executable) {
         return registerForActivityResult(
                 new StartActivityForResult(),
                 result -> {
@@ -207,7 +212,7 @@ public class ParcelasListar extends AppCompatActivity {
         mStartUpdateParcela.launch(intent);
     }
 
-    ActivityResultLauncher<Intent> mStartUpdateParcela = newActivityResultLauncher(new ExecuteActivityResultParcelaReservada() {
+    ActivityResultLauncher<Intent> mStartUpdateParcela = newActivityResultLauncher(new ExecuteActivityResultParcelas() {
         @Override
         public void process(Bundle extras, Parcela parcela) {
             int id = extras.getInt(ParcelaEdit.PARCELA_ID);
