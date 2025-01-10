@@ -82,5 +82,4 @@ public class ParcelaReservada {
         this.numOcupantes = numOcupantes;
     }
 
-
 }

@@ -64,8 +64,9 @@ public abstract class CampingRoomDatabase extends RoomDatabase {
                 daoParcela.insert(parcela);
                 parcela = new Parcela("Pinares", "800m2, una locura", 16, 24.99f);
                 daoParcela.insert(parcela);
-                parcela = new Parcela("El cerro", "Parela amplia y familiar de 400m2 con una fuente de agua y conexión eléctrica", 10, 12.75f);
+                parcela = new Parcela("El cerro", "Parcela amplia y familiar de 400m2 con una fuente de agua y conexión eléctrica", 10, 12.75f);
                 daoParcela.insert(parcela);
+                
 
                 Reserva reserva = new Reserva("Juan José", 620123456, "12/6/2024", "18/6/2024");
                 daoReserva.insert(reserva);

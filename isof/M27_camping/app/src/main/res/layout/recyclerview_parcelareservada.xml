@@ -25,7 +25,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:gravity="center_vertical"/>
 
         <!-- Número de ocupantes de la parcela reservada -->
         <TextView
@@ -33,7 +34,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:gravity="center_vertical"/>
 
         <!-- Flechas para aumentar y disminuir ocupantes -->
         <LinearLayout

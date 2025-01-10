@@ -138,7 +138,14 @@ public class ReservasListar extends AppCompatActivity {
                     .show();
         });
 
-        mAdapter.setSendClickListener(reserva -> metodoEnvio.send(reserva.getTlfCliente().toString(), "Confirmacion Reserva"));
+        mAdapter.setSendClickListener(reserva -> metodoEnvio.send(reserva.getTlfCliente().toString(),
+                "Confirmacion Reserva #"+ reserva.getIdReserva() + "\n"
+                        + "Estimado/a " + reserva.getNomCliente() + "\n"
+                        + "Le confirmamos su reserva con los siguientes detalles:\n"
+                        + "Fecha de entrada: " + reserva.getFechaEntrada() + "\n"
+                        + "Fecha de salida: " + reserva.getFechaSalida() + "\n"
+                        + "Precio total: \n"
+                        + "Gracias por elegirnos, nos vemos pronto!"));
 
         // It doesn't affect if we comment the following instruction
         registerForContextMenu(mRecyclerView);

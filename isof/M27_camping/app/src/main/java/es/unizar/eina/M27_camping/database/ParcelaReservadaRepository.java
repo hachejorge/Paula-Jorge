@@ -19,6 +19,7 @@ import java.util.concurrent.TimeoutException;
 public class ParcelaReservadaRepository {
 
     private final ParcelaReservadaDao mParcelaReservadaDao;
+    private final ParcelaDao mParcelaDao;
 
     private final long TIMEOUT = 15000;
 
@@ -31,6 +32,7 @@ public class ParcelaReservadaRepository {
     public ParcelaReservadaRepository(Application application) {
         CampingRoomDatabase db = CampingRoomDatabase.getDatabase(application);
         mParcelaReservadaDao = db.parcelaReservadaDao();
+        mParcelaDao = db.parcelaDao();
     }
 
     /** Devuelve un objeto de tipo LiveData con todas las parcelas reservadas de todas las reservas.
@@ -47,6 +49,13 @@ public class ParcelaReservadaRepository {
      */
     public LiveData<List<ParcelaReservada>> getParcelasFromReserva(int id_reserva) {
         return mParcelaReservadaDao.getAllParcelasFromReserva(id_reserva);
+    }
+
+    /**
+     *
+     */
+    public int getMaxOcupParcelaR(int id_parcelaR) {
+        return mParcelaReservadaDao.getMaxOcupParcelaR(id_parcelaR);
     }
 
     /** Inserta una parcela nueva en la base de datos

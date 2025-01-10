@@ -134,24 +134,25 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="@dimen/small_padding">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/small_padding"
-                        android:text="@string/parcelasReservadas"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                    android:layout_height="80dp"
+                    android:orientation="horizontal">
 
                     <Spinner
                         android:id="@+id/parcelas_disponibles"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/small_padding"
+                        android:layout_width="250dp"
+                        android:layout_height="52dp"
+                        android:layout_margin="@dimen/big_padding"
                         android:background="@drawable/edittext_background" />
+
+                    <Button
+                        android:id="@+id/button_addParcela"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_margin="@dimen/big_padding"
+                        android:background="@drawable/button_border_background"
+                        android:text="+"
+                        android:textColor="@color/buttonLabel"/>
+
 
                 </LinearLayout>
 

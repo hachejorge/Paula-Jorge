@@ -26,6 +26,7 @@ public class Parcela {
     private Float precioPorPersona;
 
     public Parcela(@NonNull String nombre, String descripcion, Integer maxOcupantes, Float precioPorPersona) {
+        /**this.idParcela = idParcela;*/
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.maxOcupantes = maxOcupantes;

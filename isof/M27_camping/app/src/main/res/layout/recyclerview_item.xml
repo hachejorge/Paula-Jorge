@@ -21,14 +21,18 @@
         android:layout_height="wrap_content"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:layout_marginLeft="8dp"/>
+
 
     <!-- Precio por Persona -->
     <TextView
         android:id="@+id/parcela_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:layout_marginLeft="8dp"/>
+
 
     <!-- Contenedor horizontal para iconos de editar y eliminar -->
     <LinearLayout

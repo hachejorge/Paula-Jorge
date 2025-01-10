@@ -29,8 +29,11 @@ public interface ParcelaDao {
     @Query("SELECT * FROM parcela WHERE idParcela = :id")
     Parcela getParcelaById(int id);
 
-    @Query("SELECT * FROM parcela ORDER BY nombre ASC")
+    @Query("SELECT * FROM parcela ORDER BY LOWER(nombre) ASC")
     LiveData<List<Parcela>> getOrderedParcelasByNombre();
+
+    @Query("SELECT * FROM parcela WHERE nombre = :nom")
+    LiveData<Parcela> getParcelaPorNombre(String nom);
 
     @Query("SELECT * FROM parcela ORDER BY maxOcupantes ASC")
     LiveData<List<Parcela>> getOrderedParcelasByOcupantes();

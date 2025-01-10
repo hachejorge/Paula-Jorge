@@ -3,8 +3,12 @@ package es.unizar.eina.M27_camping.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.app.DatePickerDialog;
 
@@ -21,6 +25,7 @@ import java.util.List;
 
 import es.unizar.eina.M27_camping.R;
 import es.unizar.eina.M27_camping.database.ParcelaReservada;
+import es.unizar.eina.M27_camping.database.ParcelaReservadaDao;
 
 /** Pantalla utilizada para la creación o edición de una reserva */
 public class ReservaEdit extends AppCompatActivity {
@@ -42,10 +47,15 @@ public class ReservaEdit extends AppCompatActivity {
     private Integer mRowId;
 
     Button mSaveButton;
+    Button mAddButton;
 
     private ParcelaReservadaViewModel mParcelaReservadasViewModel;
+    private ParcelaViewModel mParcelaViewModel;
     private RecyclerView mRecyclerViewParcelasReservadas;
     private ParcelaReservadaListAdapter mParcelasReservadasAdapter;
+
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,6 +73,7 @@ public class ReservaEdit extends AppCompatActivity {
         mRecyclerViewParcelasReservadas.setLayoutManager(new LinearLayoutManager(this));
 
         mParcelaReservadasViewModel = new ViewModelProvider(this).get(ParcelaReservadaViewModel.class);
+        mParcelaViewModel = new ViewModelProvider(this).get(ParcelaViewModel.class);
 
         // Añadir el selector de fecha para mFechaEntradaText
         mFechaEntradaText.setOnClickListener(v -> mostrarDatePicker(mFechaEntradaText));
@@ -81,8 +92,71 @@ public class ReservaEdit extends AppCompatActivity {
             });
         }
 
+        //SPINNER PARCELA RESERVADA
+        Spinner spinnerReserva = findViewById(R.id.parcelas_disponibles);
+
+        String [] opcionesSpinner = {"Parcela1", "Parcela2", "Parcela3"};
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opcionesSpinner);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerReserva.setAdapter(adapter);
+
+        spinnerReserva.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Cuando se haga click en el boton "+" se añadirá la parcela seleccionada
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // No hacer nada si no se selecciona nada
+            }
+        });
+
+
+        // BOTON ADD RESERVA
+        mAddButton = findViewById(R.id.button_addParcela);
+        mAddButton.setOnClickListener(view -> {
+            Intent replyIntent = new Intent();
+
+            String nomParcela = (String) spinnerReserva.getSelectedItem();
+            mParcelaViewModel.getParcelaPorNombre(nomParcela).observe(this, parcela -> {
+                ParcelaReservada pr = new ParcelaReservada(id_reserva,
+                        parcela.getIdParcela(), nomParcela, 0);
+                mParcelaReservadasViewModel.insert(pr);
+
+                mParcelaReservadasViewModel.getAllParcelasPorReserva(id_reserva).observe(this, parcelaReservadas -> {
+                    if (parcelaReservadas != null ) {
+                        mParcelasReservadasAdapter.submitList(parcelaReservadas);
+                    }
+                });
+            });
+
+        });
+
         mParcelasReservadasAdapter.setOnAumentarClickListener(parcelaReservada -> {
             // Hay que chequear el máximo
+            int ocupantesActuales = parcelaReservada.getNumOcupantes();
+            int position = getIndexOfParcela(parcelaReservada);
+            mParcelaViewModel.getParcelaPorNombre(parcelaReservada.getNomParcela()).observe(this, parcela -> {
+                //Tiene menos ocupantes del máximo
+                if (ocupantesActuales < parcela.getMaxOcupantes()) {
+                    parcelaReservada.setNumOcupantes(ocupantesActuales + 1);
+                    mParcelaReservadasViewModel.update(parcelaReservada);
+                    mParcelasReservadasAdapter.updateItem(position, parcelaReservada);
+                    mParcelaReservadasViewModel.getAllParcelasPorReserva(id_reserva).observe(this, parcelasReservadas -> {
+                        if (parcelasReservadas != null ) {
+                            mParcelasReservadasAdapter.submitList(parcelasReservadas);
+                        }
+                    });
+                    mParcelaReservadasViewModel.getAllParcelasPorReserva(id_reserva).removeObservers(this);
+                    Toast.makeText(this, "Ocupantes aumentados a " + parcelaReservada.getNumOcupantes(), Toast.LENGTH_SHORT).show();
+                }
+                //Hay el mismo número de ocupantes que el máximo
+                else {
+                    Toast.makeText(this, "Ocupantes máximos alcanzados", Toast.LENGTH_SHORT).show();
+                }
+            });
+
         });
 
         mParcelasReservadasAdapter.setOnDisminuirClickListener(parcelaReservada -> {

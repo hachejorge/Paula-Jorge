@@ -26,6 +26,10 @@ public class ParcelaViewModel extends AndroidViewModel {
         return mRepository.getAllParcelasPorNombre();
     }
 
+    public LiveData<Parcela> getParcelaPorNombre(String nom) {
+        return mRepository.getParcelaPorNombre(nom);
+    }
+
     public LiveData<List<Parcela>> getParcelasPorPrecio() {
         return mRepository.getAllParcelasPorOcupantes();
     }
@@ -33,6 +37,7 @@ public class ParcelaViewModel extends AndroidViewModel {
     public LiveData<List<Parcela>> getParcelasPorOcupantes() {
         return mRepository.getAllParcelasPorPrecio();
     }
+
 
 
     public void insert(Parcela parcela) { mRepository.insert(parcela); }

@@ -43,6 +43,10 @@ public class ParcelaRepository {
         return mParcelaDao.getOrderedParcelasByNombre();
     }
 
+    public LiveData<Parcela> getParcelaPorNombre(String nom) {
+        return mParcelaDao.getParcelaPorNombre(nom);
+    }
+
     /** Devuelve un objeto de tipo LiveData con todas las parcelas ordenadas por Número de ocupantes máximos.
      * Room ejecuta todas las consultas en un hilo separado.
      * El objeto LiveData notifica a los observadores cuando los datos cambian.

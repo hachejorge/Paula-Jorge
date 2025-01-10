@@ -38,7 +38,7 @@ public class WhatsAppImplementor implements SendImplementor{
 
    public void send (String phone, String message) {
       PackageManager pm = getSourceActivity().getPackageManager();
-      boolean app_installed = true;
+      boolean app_installed = false;
       try {
          pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
          app_installed = true;
@@ -46,11 +46,17 @@ public class WhatsAppImplementor implements SendImplementor{
          app_installed = false;
       }
       if (app_installed) {
-         Uri smsUri = Uri.parse("sms:"+phone);
-         Intent sendIntent = new Intent(Intent.ACTION_SENDTO, smsUri);
-         sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+         String stringUri = "https://wa.me/" + phone + "?text=" + Uri.encode(message);
+         Uri whatsappUri = Uri.parse(stringUri);
+         Intent sendIntent = new Intent(Intent.ACTION_VIEW, whatsappUri);
          sendIntent.setPackage("com.whatsapp");
          getSourceActivity().startActivity(sendIntent);
+
+         //Uri smsUri = Uri.parse("sms:"+phone);
+         //Intent sendIntent = new Intent(Intent.ACTION_SENDTO, smsUri);
+         //sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+         //sendIntent.setPackage("com.whatsapp");
+         //getSourceActivity().startActivity(sendIntent);
       } else {
          Toast.makeText(getSourceActivity()," WhatsApp not Installed ", Toast.LENGTH_SHORT).show();
       }

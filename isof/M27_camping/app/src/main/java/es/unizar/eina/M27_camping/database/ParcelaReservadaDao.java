@@ -32,5 +32,7 @@ public interface ParcelaReservadaDao {
     @Query("SELECT * FROM parcelaReservada WHERE idReservaPR = :id_reserva")
     LiveData<List<ParcelaReservada>> getAllParcelasFromReserva(int id_reserva);
 
+    @Query("SELECT maxOcupantes FROM parcela WHERE idParcela = :id_parcelaR")
+    int getMaxOcupParcelaR(int id_parcelaR);
 }
 
