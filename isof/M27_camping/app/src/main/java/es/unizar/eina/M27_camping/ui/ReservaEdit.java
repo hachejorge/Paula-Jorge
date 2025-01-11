@@ -20,8 +20,15 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
@@ -238,17 +245,43 @@ public class ReservaEdit extends AppCompatActivity {
                 return;
             }
 
-            // Manejo de precio total en un hilo de fondo
+
+
+                // Manejo de precio total en un hilo de fondo
             Executors.newSingleThreadExecutor().execute(() -> {
                 float totalPrice = 0.0f;
-
+                boolean haySolape = false;
+                String fEntrada = mFechaEntradaText.getText().toString();
+                String fSalida = mFechaSalidaText.getText().toString();
+                long diasDeEstancia = calcularDiasEntreFechas(fEntrada, fSalida);
                 // Obtiene las parcelas reservadas
                 List<ParcelaReservada> parcelaReservadas = mParcelaReservadasViewModel.getListaParcelasPorReserva(id_reserva);
+                List<ParcelaReservada> parcelasSolapadas = new ArrayList<>();
                 for (ParcelaReservada pr : parcelaReservadas) {
                     Parcela parcela = mParcelaViewModel.getParcelaPorId(pr.getIdParcelaPR());
                     if (parcela != null) {
-                        totalPrice += parcela.getPrecioPorPersona() * pr.getNumOcupantes();
+                        totalPrice += parcela.getPrecioPorPersona() * pr.getNumOcupantes() * diasDeEstancia;
                     }
+                    // Se produce solape
+                    if(mParcelaReservadasViewModel.getReservasConSolape(id_reserva, pr.getIdParcelaPR(), fEntrada, fSalida) > 0){
+                        haySolape = true;
+                        parcelasSolapadas.add(pr);
+                    }
+                }
+
+                // Si se produce solape elimina las parcelas de la reserva e informa sobre el solap
+                if(haySolape){
+                    for(ParcelaReservada pr : parcelasSolapadas){
+                        mParcelaReservadasViewModel.delete(pr);
+                    }
+
+                    // Regresar al hilo principal para mostrar un mensaje al usuario
+                    runOnUiThread(() -> {
+                        Toast.makeText(getApplicationContext(), "No se puede guardar la reserva debido a solapamientos", Toast.LENGTH_LONG).show();
+                        setResult(RESULT_CANCELED, replyIntent);
+                        finish(); // Finalizar la actividad sin guardar
+                    });
+                    return;
                 }
 
                 // Regresa al hilo principal para manejar los datos y finalizar la actividad
@@ -256,8 +289,8 @@ public class ReservaEdit extends AppCompatActivity {
                 runOnUiThread(() -> {
                     replyIntent.putExtra(ReservaEdit.RESERVA_PRECIO, finalTotalPrice);
                     replyIntent.putExtra(ReservaEdit.RESERVA_NOMCLIENTE, mNomClienteText.getText().toString());
-                    replyIntent.putExtra(ReservaEdit.RESERVA_FECHAENTRADA, mFechaEntradaText.getText().toString());
-                    replyIntent.putExtra(ReservaEdit.RESERVA_FECHASALIDA, mFechaSalidaText.getText().toString());
+                    replyIntent.putExtra(ReservaEdit.RESERVA_FECHAENTRADA, fEntrada);
+                    replyIntent.putExtra(ReservaEdit.RESERVA_FECHASALIDA, fSalida);
 
                     // Validación del número de teléfono
                     try {
@@ -328,4 +361,23 @@ public class ReservaEdit extends AppCompatActivity {
         return -1; // Si no se encuentra
     }
 
+    private static long calcularDiasEntreFechas(String fechaInicio, String fechaFin) {
+        // Formato de las fechas
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        try {
+            // Parsear las cadenas de entrada a objetos Date
+            Date inicio = formatter.parse(fechaInicio);
+            Date fin = formatter.parse(fechaFin);
+
+            // Calcular la diferencia en milisegundos
+            long diferenciaMilisegundos = fin.getTime() - inicio.getTime();
+
+            // Convertir la diferencia a días
+            return diferenciaMilisegundos / (1000 * 60 * 60 * 24);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return -1; // Devuelve un valor negativo si hay un error
+        }
+    }
 }

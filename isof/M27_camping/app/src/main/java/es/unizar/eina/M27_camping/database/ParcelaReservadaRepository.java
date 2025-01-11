@@ -19,7 +19,6 @@ import java.util.concurrent.TimeoutException;
 public class ParcelaReservadaRepository {
 
     private final ParcelaReservadaDao mParcelaReservadaDao;
-    private final ParcelaDao mParcelaDao;
 
     private final long TIMEOUT = 15000;
 
@@ -32,7 +31,6 @@ public class ParcelaReservadaRepository {
     public ParcelaReservadaRepository(Application application) {
         CampingRoomDatabase db = CampingRoomDatabase.getDatabase(application);
         mParcelaReservadaDao = db.parcelaReservadaDao();
-        mParcelaDao = db.parcelaDao();
     }
 
     /** Devuelve un objeto de tipo LiveData con todas las parcelas reservadas de todas las reservas.
@@ -63,6 +61,13 @@ public class ParcelaReservadaRepository {
      */
     public void actualizarReservasPendientes(){
         mParcelaReservadaDao.actualizarReservasPendientes();
+    }
+
+    /**
+     * Devuelve la cantidad de reservas que tienen solape con la parela y las fechas dadas
+     */
+    public int getReservasConSolape(int idReservaActual,int idParcela, String fEntrada, String fSalida){
+        return mParcelaReservadaDao.getReservasConSolapamiento(idReservaActual, idParcela, fEntrada, fSalida);
     }
 
     /**

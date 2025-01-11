@@ -68,14 +68,16 @@ public abstract class CampingRoomDatabase extends RoomDatabase {
                 daoParcela.insert(parcela);
                 
 
-                Reserva reserva = new Reserva("Juan José", 620123456, "2024-06-12", "2024-06-18", 0.0f);
+                Reserva reserva = new Reserva("Juan José", 620123456, "2024-06-12", "2024-06-18", 164.97f * 6);
                 daoReserva.insert(reserva);
-                reserva = new Reserva("Pepito", 987654321, "2024-12-30", "2025-01-02", 0.0f);
+                reserva = new Reserva("Pepito", 987654321, "2024-12-30", "2025-01-02", 63.75f * 3);
                 daoReserva.insert(reserva);
 
                 ParcelaReservada parcelaReservada = new ParcelaReservada(1,1, daoParcela.getParcelaById(1).getNombre(),6);
                 daoParcelaReservada.insert(parcelaReservada);
                 parcelaReservada = new ParcelaReservada(1,2, daoParcela.getParcelaById(2).getNombre(),3);
+                daoParcelaReservada.insert(parcelaReservada);
+                parcelaReservada = new ParcelaReservada(2,3, daoParcela.getParcelaById(3).getNombre(),5);
                 daoParcelaReservada.insert(parcelaReservada);
 
             });

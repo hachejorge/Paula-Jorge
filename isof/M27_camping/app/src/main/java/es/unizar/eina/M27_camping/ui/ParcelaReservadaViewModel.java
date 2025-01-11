@@ -33,6 +33,10 @@ public class ParcelaReservadaViewModel extends AndroidViewModel {
         mRepository.actualizarReservasPendientes();
     }
 
+    int getReservasConSolape(int idReservaActual, int idParcela, String fEntrada, String fSalida){
+        return mRepository.getReservasConSolape(idReservaActual, idParcela, fEntrada, fSalida);
+    }
+
     public void insert(ParcelaReservada parcelaReservada) { mRepository.insert(parcelaReservada); }
     public void update(ParcelaReservada parcelaReservada) { mRepository.update(parcelaReservada); }
     public void delete(ParcelaReservada parcelaReservada) { mRepository.delete(parcelaReservada); }

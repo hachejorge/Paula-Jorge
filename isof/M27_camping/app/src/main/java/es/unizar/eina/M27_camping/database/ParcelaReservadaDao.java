@@ -49,5 +49,16 @@ public interface ParcelaReservadaDao {
             "WHERE idReservaPR = -1")
     void actualizarReservasPendientes();
 
+    @Query("SELECT COUNT(*) " +
+            "FROM reserva r " +
+            "JOIN parcelaReservada pr ON r.idReserva = pr.idReservaPR " +
+            "WHERE pr.idParcelaPR = :idParcela " +
+            "AND r.idReserva != :idReservaActual " +
+            "AND NOT (" +
+            "    r.fechaSalida < :fechaEntrada OR " +
+            "    r.fechaEntrada > :fechaSalida" +
+            ")")
+    int getReservasConSolapamiento(int idReservaActual, int idParcela, String fechaEntrada, String fechaSalida);
+
 }
 
