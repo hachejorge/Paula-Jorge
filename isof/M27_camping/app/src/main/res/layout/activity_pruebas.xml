@@ -9,27 +9,27 @@
 
 
     <Button
-        android:id="@+id/button_parcelas_listar"
-        android:layout_width="200dp"
-        android:layout_height="75dp"
-        android:text="Ver Parcelas"
+        android:id="@+id/button_pruebas_cajanegra"
+        android:layout_width="250dp"
+        android:layout_height="90dp"
+        android:text="Pruebas caja negra"
         android:textSize="20dp"
         android:textStyle="bold"/>
 
     <Button
-        android:id="@+id/button_reservas_listar"
-        android:layout_width="200dp"
-        android:layout_height="75dp"
-        android:text="Ver Reservas"
+        android:id="@+id/button_prueba_volumen"
+        android:layout_width="250dp"
+        android:layout_height="90dp"
+        android:text="Pruebas volumen"
         android:layout_marginTop="16dp"
         android:textSize="20dp"
         android:textStyle="bold"/>
 
     <Button
-        android:id="@+id/button_pruebas"
-        android:layout_width="200dp"
-        android:layout_height="75dp"
-        android:text="Pruebas"
+        android:id="@+id/button_prueba_sobrecarga"
+        android:layout_width="250dp"
+        android:layout_height="90dp"
+        android:text="Pruebas sobrecarga"
         android:layout_marginTop="16dp"
         android:textSize="20dp"
         android:textStyle="bold"/>

@@ -27,12 +27,13 @@ public abstract class CampingRoomDatabase extends RoomDatabase {
     static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-    static CampingRoomDatabase getDatabase(final Context context) {
+    public static CampingRoomDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (CampingRoomDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             CampingRoomDatabase.class, "camping_database")
+                            .fallbackToDestructiveMigration()
                             .addCallback(sRoomDatabaseCallback)
                             .build();
                 }
