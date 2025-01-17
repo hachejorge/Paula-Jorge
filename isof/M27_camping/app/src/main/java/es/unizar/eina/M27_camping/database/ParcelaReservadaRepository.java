@@ -71,7 +71,11 @@ public class ParcelaReservadaRepository {
     }
 
     /**
+     * Devuelve la cantidad máxima de ocupantes permitidos para una parcela reservada específica.
      *
+     * @param id_parcelaR El identificador único de la parcela reservada.
+     * @return Un valor entero que representa la cantidad máxima de ocupantes permitidos para la parcela reservada.
+     *         Si no se encuentra la parcela reservada, el valor devuelto dependerá de la implementación del DAO.
      */
     public int getMaxOcupParcelaR(int id_parcelaR) {
         return mParcelaReservadaDao.getMaxOcupParcelaR(id_parcelaR);
@@ -138,6 +142,12 @@ public class ParcelaReservadaRepository {
         }
     }
 
+    /**
+     * Elimina todas las parcelas reservadas asociadas a un identificador de parcela específico.
+     *
+     * @param idParcela El identificador único de la parcela cuyos registros asociados se desean eliminar.
+     *                  Debe ser un valor positivo mayor que 0.
+     */
     public void deleteByParcelaId(int idParcela) {
         Log.d("ParcelaReservadaRepository", "deleteByParcelaId called with id: " + idParcela);
         mParcelaReservadaDao.deleteByParcelaId(idParcela);

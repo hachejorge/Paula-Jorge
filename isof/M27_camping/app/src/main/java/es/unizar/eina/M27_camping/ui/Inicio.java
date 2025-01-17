@@ -28,7 +28,7 @@ public class Inicio extends AppCompatActivity {
             }
         });
 
-        // Configuramos el botón para las pruebas
+        // Configuramos el botón de ver las reservas
         findViewById(R.id.button_reservas_listar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -41,6 +41,7 @@ public class Inicio extends AppCompatActivity {
             }
         });
 
+        // Configuramos el botón para las pruebas
         findViewById(R.id.button_pruebas).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

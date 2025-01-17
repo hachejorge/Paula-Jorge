@@ -14,19 +14,30 @@ import es.unizar.eina.M27_camping.database.ParcelaReservadaDao;
 import es.unizar.eina.M27_camping.database.Reserva;
 import es.unizar.eina.M27_camping.database.ReservaDao;
 
+
+/**
+ * Clase UnitTests para realizar pruebas de funcionalidad sobre la base de datos de la aplicación.
+ */
 public class UnitTests {
 
     private static ParcelaDao parcelaDao;
     private static ReservaDao reservaDao;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    /**
+     * Constructor de la clase UnitTests.
+     *
+     * @param database Instancia de la base de datos utilizada para obtener los DAOs.
+     */
     public UnitTests(CampingRoomDatabase database) {
         this.parcelaDao = database.parcelaDao();
         this.reservaDao = database.reservaDao();
     }
 
 
-
+    /**
+     * Inserta datos válidos en la base de datos para realizar pruebas.
+     */
     public void insertValidos() {
         //Parcelas
         Parcela parcela = new Parcela("El corral", "Muy amplia", 5, 10.0f);
@@ -36,6 +47,9 @@ public class UnitTests {
         executor.execute(() -> reservaDao.insert(reserva));
     }
 
+    /**
+     * Inserta datos no válidos en la base de datos para realizar pruebas de validación.
+     */
     public void insertNoValidos() {
         //Parcelas
         Parcela parcela = new Parcela(null, "Muy amplia", 5, 10.0f);
@@ -85,6 +99,10 @@ public class UnitTests {
         executor.execute(() -> reservaDao.insert(reserva13));
     }
 
+
+    /**
+     * Actualiza datos válidos en la base de datos para realizar pruebas.
+     */
     public void updateValidos() {
         //Parcelas
         Parcela parcela = new Parcela("El corral", "Muy amplia", 5, 10.0f);
@@ -94,6 +112,10 @@ public class UnitTests {
         executor.execute(() -> reservaDao.update(reserva));
     }
 
+
+    /**
+     * Actualiza datos no válidos en la base de datos para realizar pruebas de validación.
+     */
     public void updateNoValidos() {
         //Parcelas
         Parcela parcela = new Parcela(null, "Muy amplia", 5, 10.0f);
@@ -143,6 +165,10 @@ public class UnitTests {
         executor.execute(() -> reservaDao.update(reserva13));
     }
 
+
+    /**
+     * Elimina datos válidos de la base de datos para realizar pruebas.
+     */
     public void deleteValidos() {
         //Parcelas
         executor.execute(() -> parcelaDao.delete(new Parcela("nombre", "descripcion", 10, 20.0f)));
@@ -150,7 +176,11 @@ public class UnitTests {
         Reserva reserva = new Reserva("cliente", 123456789, "2025-02-20", "2025-02-25", 164.97f * 6);
         executor.execute(() -> reservaDao.delete(reserva));
     }
-    
+
+
+    /**
+     * Elimina datos no válidos de la base de datos para realizar pruebas.
+     */
     public void deleteNoValidos() {
         //Parcelas
         executor.execute(() -> parcelaDao.delete(new Parcela(null, "descripcion", 10, 15.0f)));
@@ -159,6 +189,10 @@ public class UnitTests {
         executor.execute(() -> reservaDao.delete(reserva));
     }
 
+
+    /**
+     * Realiza una prueba de caja negra, ejecutando operaciones de inserción, actualización y eliminación.
+     */
     public void pruebaCajaNegra() {
         insertValidos();
         insertNoValidos();
@@ -167,8 +201,10 @@ public class UnitTests {
         deleteValidos();
         deleteNoValidos();
     }
-    
 
+    /**
+     * Realiza una prueba de volumen insertando grandes cantidades de datos en la base de datos.
+     */
     public void pruebaVolumen() {
         for(int i=0; i<100; i++) {
             Parcela parcela = new Parcela("Parcela" + String.valueOf(i) , "Parcela prueba " + String.valueOf(i), 5, 10.0f);
@@ -181,6 +217,9 @@ public class UnitTests {
         }
     }
 
+    /**
+     * Realiza una prueba de sobrecarga incrementando gradualmente la longitud de un campo.
+     */
     public void pruebaSobrecarga() {
         int longitud = 1000; // Longitud inicial
         StringBuilder descripcionBuilder = new StringBuilder("X".repeat(longitud));

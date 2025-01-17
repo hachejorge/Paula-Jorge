@@ -43,10 +43,24 @@ public class ParcelaRepository {
         return mParcelaDao.getOrderedParcelasByNombre();
     }
 
+    /**
+     * Devuelve un objeto de tipo LiveData que contiene la parcela con el nombre especificado.
+     * Room ejecuta todas las consultas en un hilo separado.
+     * El objeto LiveData notifica a los observadores cuando los datos cambian.
+     *
+     * @param nom El nombre de la parcela a buscar.
+     * @return Un objeto LiveData que contiene la parcela con el nombre especificado, si existe.
+     */
     public LiveData<Parcela> getParcelaPorNombre(String nom) {
         return mParcelaDao.getParcelaPorNombre(nom);
     }
 
+    /**
+     * Devuelve una parcela de forma síncrona, buscando por su identificador único.
+     *
+     * @param id El identificador único de la parcela.
+     * @return La parcela correspondiente al identificador proporcionado, si existe. Si no existe, devuelve null.
+     */
     public Parcela getParcelaPorId(int id) {
         return mParcelaDao.getParcelaById(id);
     }
