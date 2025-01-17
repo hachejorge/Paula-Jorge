@@ -23,6 +23,14 @@ public class Pruebas extends AppCompatActivity {
         CampingRoomDatabase database = CampingRoomDatabase.getDatabase(this);
         mUnitTests = new UnitTests(database);
 
+        findViewById(R.id.button_pruebas_cajanegra).setOnClickListener( view -> {
+            try {
+                mUnitTests.pruebaCajaNegra();
+                Toast.makeText(this, "Prueba de caja negra realizada con éxito", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(this, "Error en la prueba de caja negra: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
 
 
         findViewById(R.id.button_prueba_volumen).setOnClickListener( view -> {
